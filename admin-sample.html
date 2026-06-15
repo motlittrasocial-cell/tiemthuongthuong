@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Quản Trị Cao Cấp - Tiệm Thương Thương</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght=0,500;0,700;1,400;1,600&family=Mali:ital,wght=0,500;0,600;1,500&display=swap');
+
+        /* Giữ nguyên chữ 'Fuzzy', serif để trình duyệt kích hoạt phom chữ nghiêng thanh lịch như PDF của bạn */
+        .font-chuviet {
+            font-family: 'Fuzzy', serif;
+        }
+
+        .font-chuviet-dung {
+            font-family: 'Itim', serif;
+        }
+
+        .font-serif-premium {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .font-handwrite-soft {
+            font-family: 'Mali', cursive;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f2e6e0;
+        }
+
+        /* KHUÔN KHỔ CANVAS MÔ PHỎNG CHÍNH XÁC KHỔ GIẤY SLIDE NGANG A4 CỦA FILE PDF */
+        .pdf-page-canvas {
+            width: 297mm;
+            height: 210mm;
+            background: #fffdfa;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 50px;
+            box-shadow: 0 25px 50px -12px rgba(92, 70, 72, 0.25);
+        }
+
+        .line-art-branch {
+            opacity: 0.08;
+            stroke: #6b4e51;
+            stroke-width: 1;
+        }
+
+        /* Tinh chỉnh thanh trượt phong cách Muted Rose đồng bộ */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #7a5255;
+            cursor: pointer;
+            margin-top: -5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 5px;
+            background: #e8ded9;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-[#4a3b3c]">
+
+    <header
+        class="bg-[#4a3b3c] text-[#f7f0ed] px-6 py-4 flex justify-between items-center shadow-md border-b border-[#5e484a]">
+        <div class="flex items-center gap-3">
+            <div class="bg-[#e3969d]/20 p-2 rounded-xl text-lg select-none">✨</div>
+            <div>
+                <h1 class="text-base font-serif-premium font-bold tracking-wider uppercase">Hệ Thống Duyệt Đơn Phút Chót
+                    (Trước 2 Ngày)</h1>
+                <p class="text-[10px] text-[#e3cace] tracking-wide font-medium">Đơn hàng: kY7sT2wQ • Bản mô phỏng xuất
+                    xưởng chuẩn kích thước PDF</p>
+            </div>
+        </div>
+        <button
+            onclick="alert('Đã duyệt toàn bộ cuốn sách! Hệ thống đã đưa file hoàn mỹ vào hàng chờ gửi email tự động.')"
+            class="bg-gradient-to-r from-[#eaa4a9] to-[#d68fa8] hover:opacity-95 text-white text-xs font-bold py-2.5 px-6 rounded-xl shadow-md transition cursor-pointer tracking-wider">
+            ✅ DUYỆT TOÀN BỘ ALBUM & KHÓA ĐƠN
+        </button>
+    </header>
+
+    <div
+        class="bg-white border-b border-[#e6dad3] px-6 py-2.5 flex items-center gap-2 overflow-x-auto select-none shadow-xs">
+        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">Chọn Trang Kiểm Tra:</span>
+        <div id="tabsContainer" class="flex gap-2">
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+        <div
+            class="w-full lg:w-[400px] bg-white border-r border-[#ebdcd5] p-5 space-y-5 overflow-y-auto shadow-inner flex-shrink-0">
+            <div>
+                <span class="text-[9px] font-black tracking-widest text-[#b89598] uppercase">Studio Control Panel</span>
+                <h2 id="controlTitle" class="text-base font-serif-premium font-bold text-[#543d40] mt-0.5">Mảnh ghép số
+                    01</h2>
+            </div>
+
+            <div class="bg-[#fdfaf8] border border-[#ede2dc] p-4 rounded-2xl space-y-4">
+
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-500">
+                        <span>↔ DỜI TRÁI / PHẢI (ẢNH NGANG)</span>
+                        <span id="ctrlValX" class="font-mono text-[#7a5255] font-bold">50%</span>
+                    </div>
+                    <input type="range" id="inputX" min="0" max="100" class="w-full cursor-pointer"
+                        oninput="updateCurrentPageData()">
+                </div>
+
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-500">
+                        <span>↕ DỜI LÊN / XUỐNG (ẢNH DỌC)</span>
+                        <span id="ctrlValY" class="font-mono text-[#7a5255] font-bold">50%</span>
+                    </div>
+                    <input type="range" id="inputY" min="0" max="100" class="w-full cursor-pointer"
+                        oninput="updateCurrentPageData()">
+                </div>
+
+                <div class="space-y-1 pt-2.5 border-t border-[#f2eae4]">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-600">
+                        <span class="flex items-center gap-1">🔎 CỠ CHỮ THƯ TÌNH
+                            <span id="autoScaleBadge"
+                                class="bg-emerald-50 text-emerald-600 text-[8px] px-1 py-0.5 rounded font-normal border border-emerald-200">Tự
+                                động hóa</span>
+                        </span>
+                        <span id="ctrlValSize" class="font-mono font-black text-rose-500">25px</span>
+                    </div>
+                    <input type="range" id="inputSize" min="14" max="65" class="w-full cursor-pointer"
+                        oninput="overrideFontSize(this.value)">
+                    <div class="text-right">
+                        <button onclick="resetToAuto()"
+                            class="text-[9px] font-semibold text-slate-400 hover:text-[#7a5255] underline cursor-pointer">Trả
+                            lại cỡ chữ tự động theo độ dài thư</button>
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-1.5">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">Nội dung bức thư
+                        tình:</label>
+                    <textarea id="inputText" rows="5"
+                        class="w-full p-3 text-xs rounded-xl border border-[#ede2dc] focus:outline-none focus:border-[#e3969d] bg-white font-chuviet text-[#5e4446] leading-relaxed shadow-xs"
+                        oninput="updateCurrentPageData()"></textarea>
+                </div>
+            </div>
+
+            <div class="bg-[#faf8f6] border border-[#ede2dc] p-4 rounded-2xl space-y-3">
+                <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Cấu hình tên cặp
+                    đôi</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold mb-1">Người gửi (A):</label>
+                        <input type="text" id="inputNameA" value="Duy Anh"
+                            class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none bg-white font-bold"
+                            oninput="updateCurrentPageData()">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold mb-1">Người nhận (B):</label>
+                        <input type="text" id="inputNameB" value="Hà Chi"
+                            class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none bg-white font-bold"
+                            oninput="updateCurrentPageData()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center pt-2">
+                <button onclick="alert('Đã lưu bản nháp chỉnh sửa thành công vào bộ nhớ tạm!')"
+                    class="w-full bg-[#4a3b3c] hover:bg-[#382b2c] text-white font-bold py-2.5 rounded-xl text-xs shadow-sm transition cursor-pointer tracking-wider">
+                    💾 LƯU TẠM THAY ĐỔI NHÁP
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 bg-[#f5ebe6] p-4 md:p-8 flex items-center justify-center overflow-auto relative">
+
+            <div
+                class="absolute top-3 right-4 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-[#ebdcd5] text-[10px] font-bold text-slate-500 flex items-center gap-2 shadow-xs z-10 select-none">
+                <span>🔎 Góc nhìn:</span>
+                <button onclick="setZoom(0.6)" class="hover:text-[#7a5255] cursor-pointer">60%</button>
+                <button onclick="setZoom(0.8)" class="hover:text-[#7a5255] cursor-pointer">80%</button>
+                <button onclick="setZoom(1)" class="hover:text-[#7a5255] cursor-pointer">100%</button>
+            </div>
+
+            <div id="zoomWrapper" class="origin-center transition-transform duration-200"
+                style="transform: scale(0.75);">
+
+                <div class="pdf-page-canvas">
+
+                    <div class="absolute top-0 right-0 w-48 h-48 pointer-events-none select-none">
+                        <svg viewBox="0 0 100 100" class="w-full h-full line-art-branch transform rotate-90">
+                            <path d="M10,90 Q40,40 90,10 M40,60 Q20,40 15,25 M60,40 Q50,20 35,15 M75,25 Q70,5 55,5"
+                                fill="none" />
+                        </svg>
+                    </div>
+
+                    <div
+                        class="flex justify-between items-center text-[9px] font-bold tracking-[0.2em] text-[#c4b2b4] border-b border-[#f2eae6] pb-3 uppercase select-none">
+                        <span id="pdfHeaderNames">Hà Chi & Duy Anh</span>
+                        <span id="pdfPageIndicator">Mảnh ghép kỷ niệm số 01</span>
+                    </div>
+
+                    <div class="flex items-center justify-between h-full my-6 gap-12 px-8 z-10">
+
+                        <div
+                            class="bg-white p-5 pb-16 rounded-2xl shadow-[0_15px_35px_rgba(143,122,124,0.1)] border border-[#ede3de] w-[300px] flex-shrink-0 transform -rotate-1 relative select-none">
+                            <div class="w-full h-64 bg-[#faf6f3] rounded-xl overflow-hidden shadow-inner">
+                                <img id="pdfPolaroidImg" src="" class="w-full h-full object-cover transition-none">
+                            </div>
+                            <div id="pdfPolaroidLabel"
+                                class="text-center text-[11px] font-bold text-[#6b5557] tracking-[0.25em] mt-5 uppercase truncate px-1">
+                                Hà Chi & Duy Anh</div>
+                        </div>
+
+                        <div class="flex-1 px-4 flex flex-col justify-center h-72 relative">
+
+                            <div id="pdfLetterText"
+                                class="font-chuviet text-[#5e4446] leading-relaxed text-justify italic font-medium transition-none">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="text-center text-[10px] font-bold text-[#c4b2b4] tracking-[0.25em] uppercase select-none">
+                        ✧ Tiệm Thương Thương Lưu Giữ Kỷ Niệm ✧</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Mảng dữ liệu đa trang thực tế bốc từ Supabase về máy
+        let memoryPages = [
+            { id: 1, img: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600", text: "Gặp được em là điều may mắn nhất đời anh. Nụ cười của em hôm đó làm anh nhớ mãi chẳng thể quên. Dù sau này thế giới có đổi thay, anh vẫn sẽ nắm chặt tay em đi qua mọi thăng trầm, viết tiếp chương nhạc hạnh phúc của hai đứa mình. Yêu em nhiều hơn mỗi ngày!", x: 50, y: 50, customSize: null },
+            { id: 2, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600", text: "Cảm ơn em vì đã luôn ở bên cạnh anh, cùng anh đi qua những ngày giông bão lẫn những ngày nắng xanh tươi đẹp vô ngần.", x: 50, y: 40, customSize: null },
+            { id: 3, img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600", text: "Tấm ảnh này chụp lúc hai đứa mình giận nhau nè. Mặt em lúc phụng phịu coi kìa, đáng yêu quá chừng không chịu nổi luôn á!", x: 50, y: 55, customSize: null },
+            { id: 4, img: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600", text: "Dù mai sau thế giới bận rộn, hãy hứa vẫn giữ vẹn nguyên nụ cười này nhé.", x: 45, y: 50, customSize: null }
+        ];
+
+        let currentIndex = 0;
+
+        // Công thức tính toán size chữ tự động chuẩn đét từ file PDF mẫu của bạn
+        function getAutoFontSize(text) {
+            const len = text.trim().length;
+            if (len < 50) return 55;
+            if (len < 120) return 45;
+            if (len < 200) return 35;
+            return 25; // Hạn mức tối thiểu đúng quy tắc chốt của bạn
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabsContainer');
+            container.innerHTML = "";
+            memoryPages.forEach((page, index) => {
+                const isActive = index === currentIndex;
+                const btnClass = isActive
+                    ? "bg-[#7a5255] text-white border-[#7a5255] text-xs font-bold px-3 py-1.5 rounded-xl border shadow-xs cursor-pointer select-none"
+                    : "bg-white text-slate-600 border-[#ebdcd5] hover:bg-[#fffbf9] text-xs font-semibold px-3 py-1.5 rounded-xl border transition cursor-pointer select-none";
+                container.insertAdjacentHTML('beforeend', `<button onclick="switchPage(${index})" class="${btnClass}">Mảnh ghép ${page.id}</button>`);
+            });
+        }
+
+        function switchPage(index) {
+            currentIndex = index;
+            renderTabs();
+            loadPageToWorkspace();
+        }
+
+        function loadPageToWorkspace() {
+            const page = memoryPages[currentIndex];
+
+            // Nạp thông số vào các thanh trượt điều khiển trái
+            document.getElementById('inputX').value = page.x;
+            document.getElementById('inputY').value = page.y;
+            document.getElementById('inputText').value = page.text;
+
+            document.getElementById('controlTitle').innerText = `Mảnh ghép số 0${page.id}`;
+
+            syncVisuals();
+        }
+
+        function syncVisuals() {
+            const page = memoryPages[currentIndex];
+            const nameA = document.getElementById('inputNameA').value || "Duy Anh";
+            const nameB = document.getElementById('inputNameB').value || "Hà Chi";
+
+            // Tính toán cỡ chữ: Ưu tiên cỡ chỉnh tay, nếu không có thì chạy thuật toán auto
+            let finalSize = page.customSize;
+            if (finalSize === null) {
+                finalSize = getAutoFontSize(page.text);
+                document.getElementById('inputSize').value = finalSize;
+                document.getElementById('autoScaleBadge').classList.remove('hidden');
+            } else {
+                document.getElementById('autoScaleBadge').classList.add('hidden');
+            }
+
+            // Đồng bộ text số bên cạnh thanh kéo
+            document.getElementById('ctrlValX').innerText = page.x + "%";
+            document.getElementById('ctrlValY').innerText = page.y + "%";
+            document.getElementById('ctrlValSize').innerText = finalSize + "px";
+
+            // 🔥 ĐẬP DỮ LIỆU THỜI GIAN THỰC LÊN KHUNG CANVAS REPLICA A4 BÊN PHẢI
+            document.getElementById('pdfPageIndicator').innerText = `Mảnh ghép kỷ niệm số 0${page.id}`;
+
+            const img = document.getElementById('pdfPolaroidImg');
+            img.src = page.img;
+            img.style.objectPosition = `${page.x}% ${page.y}%`;
+
+            const txt = document.getElementById('pdfLetterText');
+            txt.innerText = page.text || "(Trang giấy trống)";
+            txt.style.fontSize = finalSize + "px";
+
+            const combinedName = `${nameB} & ${nameA}`;
+            document.getElementById('pdfHeaderNames').innerText = combinedName;
+            document.getElementById('pdfPolaroidLabel').innerText = combinedName;
+        }
+
+        // Hàm cập nhật ngược dữ liệu khi bạn gõ chữ hoặc kéo trượt
+        function updateCurrentPageData() {
+            memoryPages[currentIndex].x = document.getElementById('inputX').value;
+            memoryPages[currentIndex].y = document.getElementById('inputY').value;
+            memoryPages[currentIndex].text = document.getElementById('inputText').value;
+
+            syncVisuals();
+        }
+
+        // Khi Admin cố tình chạm tay vào thanh kéo cỡ chữ -> Kích hoạt ghi đè thủ công
+        function overrideFontSize(size) {
+            memoryPages[currentIndex].customSize = parseInt(size);
+            syncVisuals();
+        }
+
+        // Nút xóa ghi đè thủ công, trả lại quyền tự động co giãn thông minh cho thuật toán
+        function resetToAuto() {
+            memoryPages[currentIndex].customSize = null;
+            syncVisuals();
+        }
+
+        // Hàm hỗ trợ thu phóng góc nhìn Canvas cho vừa vặn màn hình
+        function setZoom(scaleValue) {
+            document.getElementById('zoomWrapper').style.transform = `scale(${scaleValue})`;
+        }
+
+        window.onload = function () {
+            renderTabs();
+            loadPageToWorkspace();
+        };
+    </script>
+</body>
+
+</html>

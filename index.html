@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tấm Ảnh Còn Lại - Trò Chơi Kỷ Niệm Cặp Đôi</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- SỬA LỖI CÚ PHÁP: Bọc đoạn nhận diện môi trường vào thẻ script ngầm -->
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === ''
+            ? 'http://localhost:3000'
+            : 'https://api.tiemthuongthuong.com';
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap');
+
+        .font-chuviet {
+            font-family: 'Fuzzy', serif;
+        }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
+
+        .font-chuviet-dung {
+            font-family: 'Itim', serif;
+        }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght=0,500;0,700;1,400;1,600&family=Mali:ital,wght=0,500;0,600;1,500&display=swap');
+
+        .font-serif-premium {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .font-handwrite-soft {
+            font-family: 'Mali', cursive;
+        }
+
+        /* Định dạng chuẩn Slide ngang A4 để khi xuất PDF không bị méo lệch */
+        .pdf-page {
+            width: 297mm;
+            height: 210mm;
+            background: #fffdfa;
+            /* Màu nền giấy kem organic dịu mắt */
+            margin: 30px auto;
+            box-shadow: 0 20px 40px -15px rgba(165, 140, 140, 0.15);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 50px;
+        }
+
+        /* Nét vẽ line-art mảnh mai trang trí góc giấy */
+        .line-art-branch {
+            opacity: 0.08;
+            stroke: #6b4e51;
+            stroke-width: 1;
+        }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght=0,300;0,400;0,600;1,400&display=swap');
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-pink-50 to-rose-100 min-h-screen text-slate-700">
+
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-rose-600 mb-2">📸 Tấm Ảnh Còn Lại</h1>
+            <p class="text-sm text-slate-500">Nơi cất giữ những mảnh ghép kỷ niệm tình yêu</p>
+        </div>
+
+        <div class="flex bg-white/60 backdrop-blur-md p-1.5 rounded-xl mb-6 shadow-sm border border-rose-50">
+            <button onclick="switchTab('intro-tab')" id="btn-intro-tab"
+                class="tab-btn flex-1 py-2.5 text-sm font-semibold rounded-lg text-rose-600 bg-white shadow-sm transition cursor-pointer">✨
+                Giới thiệu</button>
+            <button onclick="switchTab('order-tab')" id="btn-order-tab"
+                class="tab-btn flex-1 py-2.5 text-sm font-semibold rounded-lg text-slate-500 hover:text-rose-500 transition cursor-pointer">🎁
+                Tạo Hộp Quà</button>
+            <button onclick="switchTab('play-tab')" id="btn-play-tab"
+                class="tab-btn flex-1 py-2.5 text-sm font-semibold rounded-lg text-slate-500 hover:text-rose-500 transition cursor-pointer">🧩
+                Mở Hộp Quà</button>
+        </div>
+
+        <div id="intro-tab" class="tab-content space-y-6">
+            <div
+                class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-rose-100 text-center space-y-4">
+                <h2 class="text-xl font-bold text-slate-800">Trò chơi "Tấm Ảnh Còn Lại" là gì?</h2>
+                <p class="text-sm text-slate-600 leading-relaxed text-justify">Đây là một không gian bí mật dành riêng
+                    cho hai bạn. Bạn (Người A) sẽ tải lên từ 5 đến 10 bức ảnh lưu giữ khoảnh khắc ngọt ngào nhất, kèm
+                    theo những lời nhắn gửi ẩn giấu. Hệ thống sẽ biến chúng thành một trò chơi lật hình lãng mạn phong
+                    cách ảnh Polaroid hoài niệm.</p>
+                <button onclick="switchTab('order-tab')"
+                    class="bg-rose-500 text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:bg-rose-600 transition cursor-pointer text-sm">Bắt
+                    đầu tạo bất ngờ ngay 🚀</button>
+            </div>
+        </div>
+
+        <div id="order-tab" class="tab-content hidden">
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-rose-100">
+
+                <form id="orderForm" class="space-y-5">
+                    <div class="text-center pb-2 border-b border-slate-100">
+                        <span class="bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1 rounded-full">Bước 1: Chuẩn
+                            bị kỷ niệm</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-600">Email của bạn (Người gửi)</label>
+                        <input type="email" id="emailA" required
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50"
+                            placeholder="Để nhận link quản lý và biên nhận...">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-600">Số điện thoại của bạn</label>
+                        <input type="tel" id="phoneA" required
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50"
+                            placeholder="Để liên lạc khi có sự cố đơn hàng (10 số)...">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-slate-600">Tên/Biệt danh của bạn
+                                (A)</label>
+                            <input type="text" id="nameA" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50 text-sm font-medium"
+                                placeholder="Ví dụ: Duy Anh">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-slate-600">Tên/Biệt danh người ấy
+                                (B)</label>
+                            <input type="text" id="nameB" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50 text-sm font-medium"
+                                placeholder="Ví dụ: Hà Chi">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-600">Mật khẩu bảo mật cho Người
+                            nhận</label>
+                        <input type="password" id="passwordB" required
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50"
+                            placeholder="Người ấy nhập mã này mới được chơi...">
+                    </div>
+
+                    <!-- KHU VỰC CHỌN GÓI VÀ TICK CHÍNH SÁCH CHUẨN TONE HỒNG -->
+                    <div
+                        class="space-y-6 max-w-lg mx-auto bg-white/50 backdrop-blur-md p-6 rounded-3xl border border-rose-100 shadow-sm">
+
+                        <!-- 1. KHU VỰC CHỌN GÓI DỊCH VỤ (TĂNG ĐỘ TƯƠNG PHẢN) -->
+                        <div>
+                            <label
+                                class="block text-xs font-bold tracking-widest mb-3.5 text-[#8a6d71] uppercase text-center select-none">Chọn
+                                gói hành trình của hai bạn</label>
+                            <div class="grid grid-cols-2 gap-4">
+
+                                <!-- GÓI 39K (7 NGÀY) - ĐỔI MÀU HỒNG ĐÀO ĐẬM ĐÀ RÕ RÀNG -->
+                                <label
+                                    class="group relative cursor-pointer border-2 border-rose-100/70 rounded-2xl p-4 flex flex-col items-center hover:border-rose-300 transition-all duration-200 has-[:checked]:border-[#7a5255] has-[:checked]:bg-[#fff0f2] has-[:checked]:shadow-md">
+                                    <input type="radio" name="packageType" value="1_week" checked class="sr-only"
+                                        onchange="updatePhotoLimits(5, 6)">
+                                    <span class="font-serif-premium italic font-bold text-sm text-[#7a5255]">7 Ngày Ngọt
+                                        Ngào</span>
+                                    <span class="font-black text-xl text-slate-800 mt-1">39,000đ</span>
+                                    <div class="w-8 h-px bg-rose-200/50 my-2"></div>
+                                    <span class="text-[10px] text-[#9e8386] text-center font-semibold leading-relaxed">
+                                        Đăng 5 - 6 tấm ảnh<br>Lưu giữ trong 1 tuần
+                                    </span>
+                                </label>
+
+                                <!-- GÓI 59K (14 NGÀY) - TONE HỒNG ĐẬM ĐỒNG ĐIỆU -->
+                                <label
+                                    class="group relative cursor-pointer border-2 border-rose-100/70 rounded-2xl p-4 flex flex-col items-center hover:border-rose-300 transition-all duration-200 has-[:checked]:border-[#7a5255] has-[:checked]:bg-[#fff0f2] has-[:checked]:shadow-md">
+                                    <input type="radio" name="packageType" value="2_weeks" class="sr-only"
+                                        onchange="updatePhotoLimits(5, 10)">
+                                    <span class="font-serif-premium italic font-bold text-sm text-rose-500">14 Ngày Gắn
+                                        Kết</span>
+                                    <span class="font-black text-xl text-slate-800 mt-1">59,000đ</span>
+                                    <div class="w-8 h-px bg-rose-200/50 my-2"></div>
+                                    <span class="text-[10px] text-[#9e8386] text-center font-semibold leading-relaxed">
+                                        Đăng 5 - 10 tấm ảnh<br>Lưu giữ trong 2 tuần
+                                    </span>
+                                </label>
+
+                            </div>
+                            <p id="photoLimitNotice" class="text-[10px] text-slate-400 italic mt-2.5 text-center">Gói
+                                hiện tại yêu cầu tải lên từ 5 đến 6 tấm ảnh.</p>
+                        </div>
+
+                        <!-- 2. Ô TICK CHỌN ĐÃ ĐỌC CHÍNH SÁCH (ĐÃ NỚI RỘNG KHÔNG BÌ BỊ XUỐNG DÒNG LỖI) -->
+                        <div
+                            class="flex items-center justify-center gap-2.5 px-2 py-1.5 border-t border-rose-100/40 select-none">
+                            <input type="checkbox" id="policyAgree" required
+                                class="accent-[#7a5255] h-3.5 w-3.5 rounded border-rose-200 cursor-pointer flex-shrink-0">
+                            <label for="policyAgree"
+                                class="text-[11px] text-slate-500 font-medium cursor-pointer whitespace-nowrap">
+                                Tôi đã đọc và đồng ý với <button type="button" onclick="openPolicyModal()"
+                                    class="text-[#7a5255] font-bold underline hover:text-rose-600 transition tracking-wide cursor-pointer bg-transparent border-none p-0 inline">chính
+                                    sách bảo mật tự hủy ảnh </button> của Tiệm.
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <!-- SCRIPT ĐIỀU KHIỂN RÀNG BUỘC GÓI ĐỘNG -->
+                    <script>
+                        let minPhotos = 5;
+                        let maxPhotos = 6;
+
+                        function updatePhotoLimits(min, max) {
+                            minPhotos = min;
+                            maxPhotos = max;
+                            document.getElementById('photoLimitNotice').innerText = `Gói hiện tại yêu cầu tải lên từ ${min} đến ${max} tấm ảnh.`;
+                        }
+
+                        // Hàm mở/đóng popup chính sách
+                        function openPolicyModal() {
+                            document.getElementById('policyModal').classList.remove('hidden');
+                        }
+                        function closePolicyModal() {
+                            document.getElementById('policyModal').classList.add('hidden');
+                        }
+                    </script>
+
+                    <!-- POPUP CHÍNH SÁCH ẨN -->
+                    <div id="policyModal"
+                        class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs flex items-center justify-center p-4 hidden z-50 transition-all duration-300">
+                        <div
+                            class="bg-white/95 backdrop-blur-md p-6 rounded-3xl max-w-md w-full shadow-2xl border border-rose-100/40 flex flex-col max-h-[85vh]">
+
+                            <!-- Tiêu đề popup -->
+                            <div class="text-center pb-3 border-b border-slate-100 flex-shrink-0">
+                                <h3 class="text-base font-serif-premium font-bold text-[#7a5255] tracking-wide">Cam Kết
+                                    & Chính Sách Dịch Vụ</h3>
+                                <p class="text-[10px] text-slate-400 font-medium mt-0.5">Tiệm Thương Thương • Hỗ trợ
+                                    hành trình của hai bạn</p>
+                            </div>
+
+                            <!-- Nội dung điều khoản cuộn mượt mà -->
+                            <div
+                                class="flex-1 overflow-y-auto my-4 pr-1 text-xs text-slate-600 leading-relaxed space-y-4 custom-scroll text-justify">
+                                <div>
+                                    <h4 class="font-bold text-[#7a5255] mb-1">1. Quyền riêng tư & Cơ chế tự hủy ảnh (Bảo
+                                        mật 100%)</h4>
+                                    <p>Hình ảnh và lời nhắn của bạn chỉ dùng để hiển thị trong link game của riêng hai
+                                        bạn. Tiệm tuyệt đối không chia sẻ, không sử dụng cho bất kỳ mục đích nào khác.
+                                    </p>
+                                    <p class="mt-1">Hệ thống sẽ tự động quét và xóa sạch vĩnh viễn toàn bộ hình ảnh, lời
+                                        nhắn trên máy chủ ngay khi gói dịch vụ hết hạn (sau 7 ngày hoặc 14 ngày tùy gói
+                                        bạn chọn).</p>
+                                    <p class="italic text-rose-600 font-medium mt-1">Lưu ý: Sau khi hệ thống đã xóa, dữ
+                                        liệu sẽ không thể khôi phục dưới mọi hình thức. Bạn vui lòng tự lưu trữ ảnh gốc
+                                        on thiết bị của mình nhé.</p>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-[#7a5255] mb-1">2. Quy định về nội dung hình ảnh</h4>
+                                    <p>Bạn hoàn toàn chịu trách nhiệm về nội dung và bản quyền của hình ảnh mình tải
+                                        lên. Tiệm nghiêm cấm các hình ảnh vi phạm pháp luật, đồi trụy (18+), bạo lực,
+                                        hoặc có tính chất xúc phạm cá nhân/tổ chức.</p>
+                                    <p class="mt-1">Nếu hệ thống phát hiện hình ảnh vi phạm, Tiệm xin phép được khóa
+                                        link hiển thị ngay lập tức và không hoàn tiền.</p>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-[#7a5255] mb-1">3. Chính sách thanh toán & Hoàn tiền</h4>
+                                    <p>Vì đây là sản phẩm công nghệ có hiệu lực ngay sau khi bạn kích hoạt link, Tiệm
+                                        không hỗ trợ hoàn tiền với các lý do cá nhân (ví dụ: đổi ý không chơi nữa, giận
+                                        nhau với người yêu...).</p>
+                                    <p class="mt-1">Trong trường hợp link game gặp lỗi kỹ thuật từ phía hệ thống, Tiệm
+                                        sẽ tiến hành sửa lỗi ngay hoặc đền bù bằng cách gia hạn thêm ngày sử dụng tương
+                                        ứng.</p>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-[#7a5255] mb-1">4. Khung giờ hỗ trợ khách hàng</h4>
+                                    <p>
+                                        <bold class="font-semibold">⏰ Thời gian làm việc:</bold> Từ 10:00 sáng đến 10:00
+                                        tối (22:00) hằng ngày.
+                                    </p>
+                                    <p class="mt-0.5">Mọi tin nhắn hỗ trợ gửi trong khung giờ này sẽ được xử lý nhanh
+                                        chóng. Nếu gửi ngoài khung giờ trên, Tiệm xin phép sẽ giải quyết ngay vào lúc
+                                        10h sáng ngày hôm sau.</p>
+                                </div>
+
+                                <!-- THÔNG TIN LIÊN HỆ ĐƯỢC NHÚNG GỌN VÀO CUỐI POPUP -->
+                                <div
+                                    class="pt-3 border-t border-dashed border-slate-200 text-[11px] space-y-1 text-slate-500 bg-rose-50/30 p-3 rounded-xl">
+                                    <p class="font-bold text-[#7a5255] text-center mb-1">💬 Kênh Hỗ Trợ Kỹ Thuật Của
+                                        Tiệm</p>
+                                    <p class="flex items-center gap-1 justify-center">🎵 TikTok: <bold
+                                            class="font-semibold text-slate-700">@tiemthuongthuong</bold>
+                                    </p>
+                                    <p class="flex items-center gap-1 justify-center">✉️ Email: <bold
+                                            class="font-semibold text-slate-700">tiemthuongthuong@gmail.com</bold>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Nút đóng popup quay về -->
+                            <button type="button" onclick="closePolicyModal()"
+                                class="w-full bg-[#7a5255] text-white font-bold py-2.5 rounded-xl text-xs shadow-sm hover:bg-[#634244] transition cursor-pointer flex-shrink-0 uppercase tracking-wider">
+                                Tôi đã hiểu rõ ➜
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-gradient-to-r from-amber-50 to-rose-50/60 p-4 rounded-xl border border-amber-200/60 space-y-1.5 text-xs text-slate-600 shadow-inner">
+                        <div class="font-bold text-amber-700 flex items-center gap-1">✨ Bí kíp chọn ảnh từ Tấm Ảnh Còn
+                            Lại gửi các bạn nữ tỉ mỉ:</div>
+                        <p>• <b>Tỉ lệ ảnh tốt nhất:</b> Nên ưu tiên chọn ảnh <b>Khung đứng dọc</b> hoặc <b>Ảnh
+                                vuông</b>. Nếu bạn chọn ảnh phong cảnh ngang, hệ thống sẽ tự động lấy tâm giữa.</p>
+                        <p>• <b>Góc độ hiển thị:</b> Bạn hoàn toàn có thể tự điều chỉnh dời ảnh lên/xuống hoặc qua
+                            trái/phải bằng cách bấm vào nút <b>Chỉnh góc ảnh</b> xuất hiện ngay bên dưới tấm hình sau
+                            khi chọn để căn chỉnh bố cục ưng ý nhất!</p>
+                        <p>• <b>Cảm xúc truyền tải:</b> Nên chọn những bức ảnh rõ mặt, tươi sáng hoặc những khoảnh khắc
+                            tinh nghịch đáng yêu để tạo bất ngờ lớn nhất cho nửa kia khi lật hình nhé.</p>
+                    </div>
+
+                    <div>
+                        <label
+                            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-xl bg-white/50 hover:border-rose-300 transition cursor-pointer w-full">
+                            <div class="space-y-1 text-center">
+                                <div class="text-sm text-rose-500 font-semibold">📸 Bấm vào đây để chọn và thêm ảnh kỷ
+                                    niệm (5 - 10 tấm)</div>
+                                <p class="text-xs text-slate-400" id="fileCountLabel">Đã chọn: 0 tấm ảnh</p>
+                                <input id="imageInput" type="file" multiple accept="image/*" class="sr-only">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div id="previewContainer" class="space-y-3 max-h-[350px] overflow-y-auto pr-2 hidden">
+                    </div>
+
+                    <button type="submit" id="submitBtn"
+                        class="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:from-rose-600 hover:to-pink-600 transition cursor-pointer text-center">
+                        Tiếp tục đến bước thanh toán ➜
+                    </button>
+                </form>
+
+                <!-- BƯỚC 2: THANH TOÁN (HÀM RÁP NÚT KHÓA POLICY THEO THỐNG NHẤT) -->
+                <div id="paymentArea" class="hidden space-y-5 text-center">
+                    <div class="text-center pb-2 border-b border-slate-100"><span
+                            class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">Bước 2: Xác
+                            nhận thanh toán</span></div>
+                    <p class="text-xs text-slate-500 px-4">Hình ảnh đã tải lên hệ thống niêm phong an toàn. Vui lòng
+                        quét mã QR để kích hoạt.</p>
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 inline-block shadow-inner"><img
+                            id="qrImage" src="" class="w-56 h-56 mx-auto"></div>
+                    <div class="text-left bg-rose-50/50 p-4 rounded-xl space-y-2 text-sm border border-rose-100/50">
+                        <div>• Ngân hàng: <span id="paymentBank" class="font-bold"></span></div>
+                        <div>• Số tài khoản: <span id="paymentCard" class="font-bold tracking-wider"></span></div>
+                        <div>• Số tiền: <span id="paymentPrice" class="font-bold text-rose-600"></span></div>
+                        <div>• Nội dung chuyển khoản bắt buộc: <span id="paymentCode"
+                                class="font-mono font-bold bg-rose-600 text-white px-2.5 py-0.5 rounded"></span></div>
+                    </div>
+                    <div class="flex items-start gap-2.5 pt-2 text-left">
+                        <input type="checkbox" id="policyCheck"
+                            class="mt-1 accent-rose-500 h-4 w-4 rounded cursor-pointer">
+                        <label for="policyCheck" class="text-xs text-slate-500 leading-tight cursor-pointer">Tôi xác
+                            nhận đã chuyển khoản đúng thông tin và đồng ý với Chính sách bảo mật.</label>
+                    </div>
+
+                    <!-- SỬA ID THÀNH btnPayment ĐỂ SCRIPT TỰ KHÓA ĐẾN KHI TICK ĐỒNG Ý -->
+                    <button id="btnPayment" onclick="completeOrder()"
+                        class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:from-emerald-600 hover:to-teal-600 transition cursor-pointer">Tôi
+                        đã chuyển khoản - Hoàn tất đặt hàng ✔</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="play-tab" class="tab-content hidden">
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-rose-100 space-y-5">
+                <div class="text-center">
+                    <h2 class="text-lg font-bold text-slate-800">Mở Hộp Quà Tình Yêu</h2>
+                </div>
+                <div class="space-y-4">
+                    <input type="text" id="playOrderId"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-center font-mono"
+                        placeholder="Nhập Mã số quà tặng...">
+                    <input type="password" id="playPassword"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-center"
+                        placeholder="Nhập mật khẩu bảo mật...">
+                    <button onclick="goToGame()"
+                        class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:from-emerald-600 hover:to-teal-600 transition cursor-pointer">Khám
+                        Phá Hộp Quà 🧩</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL POPUP CĂN CHỈNH GÓC HÌNH -->
+    <div id="cropModal"
+        class="fixed inset-0 bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-rose-50 text-center space-y-5">
+            <div>
+                <h3 class="text-base font-bold text-slate-800">Căn Chỉnh Góc Ảnh Polaroid</h3>
+                <p class="text-xs text-slate-400">Điều chỉnh 2 thanh trượt để lấy góc mặt đẹp nhất</p>
+            </div>
+
+            <div
+                class="bg-white p-4 pb-12 rounded-2xl shadow-xl border border-slate-100 max-w-[210px] mx-auto transform -rotate-1">
+                <div class="w-full h-48 bg-slate-100 rounded-xl overflow-hidden shadow-inner relative">
+                    <img id="modalCropImage" src="" class="w-full h-full object-cover rounded-xl"
+                        style="object-position: 50% 50%">
+                </div>
+                <div class="text-[8px] font-bold text-slate-300 tracking-widest mt-3">OUR MEMORIES</div>
+            </div>
+
+            <div class="space-y-3 text-left px-2">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 block mb-1">↔ DỜI TRÁI / PHẢI (Cho ảnh
+                        ngang)</label>
+                    <input type="range" id="modalSliderX" min="0" max="100"
+                        class="w-full accent-rose-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+                        oninput="updateModalImageOffset()">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 block mb-1">↕ DỜI LÊN / XUỐNG (Cho ảnh
+                        dọc)</label>
+                    <input type="range" id="modalSliderY" min="0" max="100"
+                        class="w-full accent-rose-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+                        oninput="updateModalImageOffset()">
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="closeCropModal()"
+                    class="flex-1 bg-slate-100 text-slate-600 font-semibold py-2 rounded-xl text-xs hover:bg-slate-200 transition cursor-pointer">Hủy</button>
+                <button type="button" onclick="saveCropModalOffset()"
+                    class="flex-1 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold py-2 rounded-xl text-xs shadow-md hover:opacity-95 transition cursor-pointer">Lưu
+                    bố cục ✔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT ĐIỀU HÀNH KẾT NỐI API THỰC TẾ -->
+    <script>
+        const BANK_CONFIG = { bankId: "MB", accountNo: "0999999999", accountName: "NGUYEN VAN A" };
+        let selectedFiles = [];
+        let currentEditIndex = null;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-rose-600', 'bg-white', 'shadow-sm'); btn.classList.add('text-slate-500');
+            });
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) activeBtn.classList.add('text-rose-600', 'bg-white', 'shadow-sm');
+        }
+
+        // 1. ĐOẠN ĐỌC FILE ẢNH: Khởi tạo thêm biến lưu text tạm cho từng file
+        document.getElementById('imageInput').addEventListener('change', function (e) {
+            const newFiles = Array.from(e.target.files);
+            if (selectedFiles.length + newFiles.length > 10) {
+                alert("Vượt quá tối đa 10 tấm ảnh rồi bạn ơi!"); return;
+            }
+
+            newFiles.forEach(file => {
+                file.offsetX = 50;
+                file.offsetY = 50;
+                file.tempSrc = "";
+                file.savedMessage = ""; // 🔥 MỚI: Biến giữ chữ không cho bay màu
+            });
+
+            selectedFiles = selectedFiles.concat(newFiles);
+            this.value = "";
+            renderPreviews();
+        });
+
+        // 2. ĐOẠN VẼ PREVIEW CẬP NHẬT: Trói chữ gõ thời gian thực vào biến lưu trữ
+        function renderPreviews() {
+            document.getElementById('fileCountLabel').innerText = `Đã chọn: ${selectedFiles.length} tấm ảnh`;
+            const container = document.getElementById('previewContainer');
+            container.innerHTML = "";
+            if (selectedFiles.length === 0) { container.classList.add('hidden'); return; }
+            container.classList.remove('hidden');
+
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    file.tempSrc = event.target.result;
+
+                    // Đọc lại chữ đã lưu cũ (nếu có), mặc định ban đầu là rỗng
+                    const currentText = file.savedMessage || "";
+
+                    const itemHtml = `
+                <div class="bg-white/80 p-3 rounded-xl border border-rose-100 flex items-center gap-4 shadow-sm">
+                    <div class="w-12 h-14 bg-slate-50 p-0.5 pb-3 rounded border border-slate-200 flex-shrink-0 overflow-hidden">
+                        <img src="${event.target.result}" id="prev-img-${index}" class="w-full h-full object-cover rounded-sm" style="object-position: ${file.offsetX}% ${file.offsetY}%">
+                    </div>
+                    <div class="flex-1 space-y-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400">ẢNH KỶ NIỆM ${index + 1}</span>
+                            <button type="button" onclick="openCropModal(${index})" class="text-[11px] font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded-md transition cursor-pointer">✨ Chỉnh góc ảnh</button>
+                        </div>
+                        
+                        <input type="text" required value="${currentText}" 
+                            oninput="selectedFiles[${index}].savedMessage = this.value" 
+                            class="msg-input w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50" 
+                            placeholder="Viết lời nhắn hoặc thư tình ẩn giấu...">
+                    </div>
+                    <button type="button" onclick="removeImage(${index})" class="text-xs text-slate-400 hover:text-rose-500 font-bold p-1 cursor-pointer">Xóa</button>
+                </div>
+            `;
+                    container.insertAdjacentHTML('beforeend', itemHtml);
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function openCropModal(index) {
+            currentEditIndex = index; const file = selectedFiles[index];
+            document.getElementById('modalCropImage').src = file.tempSrc;
+            document.getElementById('modalCropImage').style.objectPosition = `${file.offsetX}% ${file.offsetY}%`;
+            document.getElementById('modalSliderX').value = file.offsetX;
+            document.getElementById('modalSliderY').value = file.offsetY;
+            document.getElementById('cropModal').classList.remove('hidden');
+        }
+        function updateModalImageOffset() {
+            const x = document.getElementById('modalSliderX').value;
+            const y = document.getElementById('modalSliderY').value;
+            document.getElementById('modalCropImage').style.objectPosition = `${x}% ${y}%`;
+        }
+        function saveCropModalOffset() {
+            const x = document.getElementById('modalSliderX').value;
+            const y = document.getElementById('modalSliderY').value;
+            selectedFiles[currentEditIndex].offsetX = x;
+            selectedFiles[currentEditIndex].offsetY = y;
+            document.getElementById(`prev-img-${currentEditIndex}`).style.objectPosition = `${x}% ${y}%`;
+            closeCropModal();
+        }
+        function closeCropModal() { document.getElementById('cropModal').classList.add('hidden'); currentEditIndex = null; }
+        function removeImage(index) { selectedFiles.splice(index, 1); renderPreviews(); }
+
+        function compressImage(file, offsetX, offsetY) {
+            return new Promise((resolve) => {
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image(); img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width; let height = img.height;
+                        if (width > 1000) { height = Math.round((height * 1000) / width); width = 1000; }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                        resolve({ base64: canvas.toDataURL('image/jpeg', 0.7), offsetX, offsetY });
+                    };
+                };
+            });
+        }
+
+        // KẾT NỐI API THỰC TẾ: Gửi dữ liệu đóng gói lên Backend thật
+        document.getElementById('orderForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const packageType = document.querySelector('input[name="packageType"]:checked').value;
+
+            // Ràng buộc ảnh nghiêm ngặt theo gói chốt
+            if (packageType === '1_week' && (selectedFiles.length < 5 || selectedFiles.length > 6)) {
+                return alert("Gói 7 Ngày Ngọt Ngào yêu cầu đăng từ 5 đến 6 tấm ảnh thôi bạn nha!");
+            }
+            if (packageType === '2_weeks' && (selectedFiles.length < 5 || selectedFiles.length > 10)) {
+                return alert("Gói 14 Ngày Gắn Kết yêu cầu đăng từ 5 đến 10 tấm ảnh bạn nha!");
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = "⏳ Đang đóng gói tọa độ góc ảnh...";
+            submitBtn.disabled = true;
+
+            try {
+                const memories = [];
+                const msgInputs = document.querySelectorAll('.msg-input');
+
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const compressedData = await compressImage(selectedFiles[i], selectedFiles[i].offsetX, selectedFiles[i].offsetY);
+                    memories.push({
+                        image_path: `photo_${Date.now()}_${i}.jpg`,
+                        base64_data: compressedData.base64,
+                        message: msgInputs[i].value,
+                        offset_x: compressedData.offsetX,
+                        offset_y: compressedData.offsetY
+                    });
+                }
+
+                // Thực hiện gọi API lưu dữ liệu thật
+                const response = await fetch(`${API_URL}/api/create-order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email_a: document.getElementById('emailA').value,
+                        phone_a: document.getElementById('phoneA').value.trim(),
+                        name_a: document.getElementById('nameA').value.trim(),
+                        name_b: document.getElementById('nameB').value.trim(),
+                        password_b: document.getElementById('passwordB').value,
+                        package_type: packageType,
+                        memories: memories
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('orderForm').classList.add('hidden');
+                    document.getElementById('paymentArea').classList.remove('hidden');
+
+                    const price = packageType === '1_week' ? 39000 : 59000;
+                    document.getElementById('paymentBank').innerText = BANK_CONFIG.bankId;
+                    document.getElementById('paymentCard').innerText = BANK_CONFIG.accountNo;
+                    document.getElementById('paymentPrice').innerText = `${price.toLocaleString()}đ`;
+                    document.getElementById('paymentCode').innerText = `TAMANH ${data.order_id}`;
+                    document.getElementById('qrImage').src = `https://img.vietqr.io/image/${BANK_CONFIG.bankId}-${BANK_CONFIG.accountNo}-compact.png?amount=${price}&addInfo=TAMANH%20${data.order_id}`;
+                } else {
+                    alert("Lỗi từ hệ thống: " + data.message);
+                    submitBtn.innerText = "Tiếp tục đến bước thanh toán ➜"; submitBtn.disabled = false;
+                }
+            } catch (error) {
+                alert("Không thể kết nối đến máy chủ Backend!");
+                submitBtn.innerText = "Tiếp tục đến bước thanh toán ➜"; submitBtn.disabled = false;
+            }
+        });
+
+        function completeOrder() {
+            if (!document.getElementById('policyCheck').checked) { alert("Vui lòng tích chọn xác nhận!"); return; }
+            document.getElementById('paymentArea').innerHTML = `<div class="py-8 text-center space-y-3"><div class="text-4xl">💌</div><h3 class="text-lg font-bold text-rose-600">Hộp quà đang được niêm phong!</h3><p class="text-xs text-slate-500">Hệ thống đã ghi nhớ trọn vẹn góc ảnh phối 2 trục và lời nhắn của bạn.</p></div>`;
+        }
+
+        function goToGame() {
+            const orderId = document.getElementById('playOrderId').value.trim();
+            if (!orderId) return alert('Vui lòng nhập Mã đơn hàng!');
+            window.location.href = `game.html?id=${orderId}`;
+        }
+
+        // Logic trói chặt nút thanh toán cuối cùng theo ô tích đồng ý chính sách
+        const policyAgreeCheck = document.getElementById('policyAgree');
+        const paymentBtn = document.getElementById('btnPayment');
+
+        if (paymentBtn) {
+            paymentBtn.disabled = true;
+            paymentBtn.style.opacity = "0.5";
+            paymentBtn.style.cursor = "not-allowed";
+
+            policyAgreeCheck.addEventListener('change', function () {
+                if (this.checked) {
+                    paymentBtn.disabled = false;
+                    paymentBtn.style.opacity = "1";
+                    paymentBtn.style.cursor = "pointer";
+                } else {
+                    paymentBtn.disabled = true;
+                    paymentBtn.style.opacity = "0.5";
+                    paymentBtn.style.cursor = "not-allowed";
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

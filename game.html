@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hộp Quà Kỷ Niệm - Tấm Ảnh Còn Lại</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght=0,300;0,400;0,600;1,400&family=Dancing+Script:wght=700&display=swap');
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .font-handwrite {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .card-perspective {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+        }
+
+        @keyframes floatBg {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.2;
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.2;
+            }
+        }
+
+        .floating-heart {
+            animation: floatBg 6s ease-in-out infinite;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #eab3b6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gradient-to-br from-[#fff2f4] via-[#fdf5f2] to-[#f6eff4] min-h-screen text-slate-700 relative overflow-x-hidden">
+
+    <!-- Thành tố trang trí bay bổng ngầm -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <div class="absolute top-12 left-10 text-4xl text-rose-200/40 floating-heart">🌸</div>
+        <div class="absolute top-1/4 right-12 text-3xl text-pink-200/30 floating-heart" style="animation-delay: 2s;">✨
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-3 py-6 relative z-10">
+
+        <!-- MÀN HÌNH 1: ĐĂNG NHẬP BẢO MẬT -->
+        <div id="unlockScreen"
+            class="max-w-md mx-auto bg-white/60 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/40 space-y-6 mt-16">
+            <div class="text-center space-y-2">
+                <div class="inline-flex bg-[#fdf0f2] p-4 rounded-full text-[#9e6b70] shadow-inner">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-[#724a4f] tracking-tight">Mở Khóa Kỷ Niệm</h2>
+                <p class="text-xs text-slate-400">Vui lòng điền đúng thông tin để mở hộp quà bí mật</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1.5 text-slate-500">Mã Số Quà Tặng (Order ID)</label>
+                    <input type="text" id="gameOrderId"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-300 bg-white/60 text-center font-mono tracking-wider text-base"
+                        placeholder="Ví dụ: kY7sT2wQ">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1.5 text-slate-500">Mật Khẩu Bảo Mật</label>
+                    <input type="password" id="gamePassword"
+                        class="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-300 bg-white/60 text-center font-bold tracking-widest text-base"
+                        placeholder="••••••••">
+                </div>
+                <button onclick="verifyAndStartGame()"
+                    class="w-full bg-gradient-to-r from-[#eaa4a9] via-[#e3969d] to-[#d68fa8] text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:opacity-95 transition duration-300 cursor-pointer text-center tracking-wide">
+                    Khám Phá Ngay ✨
+                </button>
+            </div>
+        </div>
+
+        <!-- MÀN HÌNH 2: BÀN CHƠI GAME LẬT BÀI -->
+        <div id="gameScreen" class="hidden space-y-4">
+            <div
+                class="flex justify-between items-center bg-white/50 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/50 shadow-sm">
+                <div>
+                    <h1 class="text-2xl font-bold text-[#9e6b70]">📸 Tấm Ảnh Còn Lại</h1>
+                    <p class="text-[11px] text-slate-400 font-medium">Tìm các cặp ảnh Polaroid giống nhau để đọc lời
+                        nhắn</p>
+                </div>
+                <div class="text-right">
+                    <span
+                        class="text-xs bg-[#fdf0f2] text-[#9e6b70] font-bold px-4 py-2 rounded-full shadow-inner border border-white/40">
+                        🧩 Tiến độ: <span id="progressLabel">0/0</span> cặp
+                    </span>
+                </div>
+            </div>
+
+            <!-- Đồng hồ rút gọn chỉ hiển thị Ngày theo thống nhất -->
+            <div
+                class="bg-amber-50/60 backdrop-blur-sm border border-amber-100 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-amber-800 shadow-inner">
+                <div class="flex items-center gap-1.5 font-medium"><span>⏱️</span><span>Link kỷ niệm này sẽ tự hủy bảo
+                        mật sau:</span></div>
+                <div id="countdownClock"
+                    class="font-mono font-bold bg-amber-600 text-white px-3 py-1 rounded-md shadow-sm tracking-wide">
+                    -- ngày
+                </div>
+            </div>
+
+            <div id="cardGrid" class="flex flex-wrap justify-center gap-4 card-perspective pt-2"></div>
+        </div>
+
+    </div>
+
+    <!-- POPUP HIỂN THỊ LỜI NHẮN CHI TIẾT (KHI LẬT ĐÚNG CẶP) -->
+    <div id="messageModal"
+        class="fixed inset-0 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 hidden z-50 transition-all duration-300">
+        <div
+            class="bg-white/90 backdrop-blur-xl p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-white space-y-5 text-center transform scale-95 transition-all duration-300 relative overflow-hidden">
+
+            <!-- Tấm ảnh Polaroid to bản trong popup, kế thừa chuẩn xác tọa độ dời ảnh -->
+            <div
+                class="bg-white p-3 pb-10 rounded-lg shadow-xl border border-slate-100 max-w-[240px] mx-auto transform -rotate-2 hover:rotate-0 transition duration-300 relative">
+                <img id="modalImage" src="" class="w-full h-48 object-cover rounded-md shadow-inner">
+                <div id="modalCardLabel"
+                    class="absolute bottom-2 left-0 right-0 text-[10px] font-bold text-slate-300 tracking-widest uppercase">
+                    <!-- Tên cặp đôi đổ vào đây -->
+                </div>
+            </div>
+
+            <div
+                class="space-y-1.5 bg-[#fdf8f8] p-5 rounded-2xl border border-rose-100/30 shadow-inner relative text-left">
+                <div class="max-h-[120px] overflow-y-auto pr-1 custom-scroll">
+                    <p id="modalMessage"
+                        class="text-2xl text-[#7a5255] font-handwrite leading-relaxed text-justify px-1 min-h-[50px]">
+                        <!-- Lời thư tay đổ vào đây -->
+                    </p>
+                </div>
+            </div>
+
+            <button onclick="closeModal()"
+                class="w-full bg-[#7a5255] text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-[#694447] transition cursor-pointer">
+                Tiếp tục lật ảnh ➜
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT ĐIỀU HÀNH KẾT NỐI HỆ THỐNG THẬT -->
+    <script>
+        // 1. TUYỆT CHIÊU TỰ ĐỘNG NHẬN DIỆN MÔI TRƯỜNG KHÔNG LO SAI LINK MẤT TÊN MIỀN
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://api.tiemthuongthuong.com';
+
+        let serverCards = []; // Danh sách ảnh thật lấy từ database về
+        let gameCards = [];   // Nhân đôi mảng lên để phục vụ trò chơi lật bài
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let currentOrderId = "";
+        let nameA = "Người Gửi";
+        let nameB = "Người Nhận";
+
+        // Tự động bốc mã số Order ID từ đường dẫn link nếu có (Ví dụ khách click từ link gửi kèm)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('id')) {
+            document.getElementById('gameOrderId').value = urlParams.get('id');
+        }
+
+        // 2. HÀM XÁC THỰC MẬT KHẨU ĐỂ VÀO GAME (FETCH THẬT)
+        async function verifyAndStartGame() {
+            const orderIdInput = document.getElementById('gameOrderId').value.trim();
+            const passwordInput = document.getElementById('gamePassword').value.trim();
+
+            if (!orderIdInput || !passwordInput) {
+                alert("Bạn vui lòng điền đầy đủ Mã quà tặng và Mật khẩu nha!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/verify-game`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderIdInput, password: passwordInput })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    currentOrderId = orderIdInput;
+                    nameA = data.name_a;
+                    nameB = data.name_b;
+                    serverCards = data.cards; // Mảng danh sách ảnh thật: [{id, image_url, offset_x, offset_y}]
+
+                    // Đổ số Ngày đếm ngược rút gọn lên giao diện
+                    document.getElementById('countdownClock').innerText = `${data.days_left} ngày`;
+
+                    // Chuyển màn hình vào trò chơi
+                    document.getElementById('unlockScreen').classList.add('hidden');
+                    document.getElementById('gameScreen').classList.remove('hidden');
+
+                    setupGameBoard();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối:", error);
+                alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng mạng nha!");
+            }
+        }
+
+        // 3. KHỞI TẠO BÀN CHƠI GAME ĐỘNG THEO SỐ ẢNH THẬT CỦA GÓI DỊCH VỤ
+        function setupGameBoard() {
+            document.getElementById('progressLabel').innerText = `0/${serverCards.length}`;
+            matchedPairs = 0;
+            flippedCards = [];
+
+            // Trộn bài ngẫu nhiên từ mảng ảnh thật nhân đôi
+            gameCards = [...serverCards, ...serverCards].sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('cardGrid');
+            grid.innerHTML = "";
+
+            gameCards.forEach((card, index) => {
+                const cardHtml = `
+                    <div class="card w-[130px] sm:w-[150px] h-48 cursor-pointer relative rounded-2xl shadow-sm transition duration-300 hover:-translate-y-1.5 hover:shadow-lg" data-id="${card.id}" data-index="${index}" onclick="flipCard(this)">
+                        <div class="card-inner w-full h-full relative rounded-2xl">
+                            
+                            <!-- MẶT SAU: THIẾT KẾ MẢNH MAI TỐI GIẢN THEO CHỐT MỚI -->
+                            <div class="card-back bg-gradient-to-br from-[#FFF0F2] to-[#F3D1D4] rounded-2xl flex flex-col items-center justify-center text-[#9e6b70] border-2 border-white/80 shadow-sm relative overflow-hidden">
+                                <div class="absolute inset-2 border border-[#9e6b70]/15 border-dashed rounded-xl pointer-events-none"></div>
+                                <div class="text-2xl opacity-60 tracking-widest text-[#9e6b70] font-light select-none animate-pulse">✧ ✦ ✧</div>
+                                <div class="text-[9px] font-bold tracking-[0.2em] text-[#8a5c61] uppercase mt-3.5 max-w-[110px] truncate text-center px-1">
+                                    ${nameB} & ${nameA}
+                                </div>
+                                <div class="text-[7px] text-[#9e6b70] font-semibold bg-white/40 border border-[#9e6b70]/10 rounded-full px-2.5 py-0.5 mt-3 backdrop-blur-xs select-none uppercase tracking-wider">
+                                    Mở hộp quà 🗝
+                                </div>
+                            </div>
+                            
+                            <!-- MẶT TRƯỚC: ẢNH POLAROID ĂN THEO ĐÚNG TỌA ĐỘ OFFSET CỦA KHÁCH -->
+                            <div class="card-front bg-white p-2 pb-6 rounded-2xl flex flex-col justify-between h-full border border-slate-100 shadow-xl">
+                                <div class="w-full h-36 bg-[#faf6f3] rounded-xl overflow-hidden shadow-inner">
+                                    <img src="${card.image_url}" class="w-full h-full object-cover rounded-md" style="object-position: ${card.offset_x}% ${card.offset_y}%">
+                                </div>
+                                <div class="w-full text-center text-[8px] font-black text-slate-300 tracking-wider truncate px-1 uppercase">${nameB} & ${nameA}</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function flipCard(cardElement) {
+            if (cardElement.classList.contains('card-flipped') || flippedCards.length >= 2) return;
+            cardElement.classList.add('card-flipped');
+            flippedCards.push(cardElement);
+
+            if (flippedCards.length === 2) checkMatch();
+        }
+
+        // 4. KIỂM TRA KHỚP CẶP VÀ GỌI LỆNH LẤY THƯ TÌNH THẬT TỪ SERVER (FETCH THẬT)
+        async function checkMatch() {
+            const [card1, card2] = flippedCards;
+            const id1 = card1.getAttribute('data-id');
+            const id2 = card2.getAttribute('data-id');
+
+            if (id1 === id2) {
+                matchedPairs++;
+                document.getElementById('progressLabel').innerText = `${matchedPairs}/${serverCards.length}`;
+
+                try {
+                    // Lật đúng cặp nào, bốc đúng lời nhắn bí mật của tấm ảnh đó từ database lên popup
+                    const response = await fetch(`${API_URL}/api/get-message`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order_id: currentOrderId, memory_id: id1 })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setTimeout(() => {
+                            // Truyền lời thư tay và dời góc ảnh chuẩn xác lên popup modal
+                            document.getElementById('modalMessage').innerText = data.message;
+
+                            const modalImg = document.getElementById('modalImage');
+                            modalImg.src = data.image_url;
+                            modalImg.style.objectPosition = `${data.offset_x}% ${data.offset_y}%`;
+
+                            document.getElementById('modalCardLabel').innerText = `${nameB} ❤️ ${nameA}`;
+                            document.getElementById('messageModal').classList.remove('hidden');
+                        }, 500);
+                    }
+                } catch (error) {
+                    console.error("Lỗi lấy thư tình:", error);
+                }
+
+                flippedCards = [];
+
+                // Kiểm tra điều kiện phá đảo trò chơi dựa trên số ảnh thực tế của gói
+                if (matchedPairs === serverCards.length) {
+                    setTimeout(() => {
+                        alert("🎉 Chúc mừng bạn đã phá đảo trò chơi và mở khóa toàn bộ thông điệp hạnh phúc! 💕");
+                    }, 1000);
+                }
+            } else {
+                // Không khớp thì tự động úp bài lại sau 1 giây
+                setTimeout(() => {
+                    card1.classList.remove('card-flipped');
+                    card2.classList.remove('card-flipped');
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('messageModal').classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>

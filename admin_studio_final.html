@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Quản Trị Cao Cấp - Tiệm Thương Thương</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght=0,500;0,700;1,400;1,600&family=Mali:ital,wght=0,500;0,600;1,500&display=swap');
+        
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #f4eae4; }
+        .font-serif-premium { font-family: 'Cormorant Garamond', serif; }
+        .font-handwrite-soft { font-family: 'Mali', cursive; }
+        
+        /* Khung mô phỏng chính xác tỉ lệ slide ngang A4 của PDF thực tế */
+        .pdf-preview-canvas {
+            width: 297mm;
+            height: 210mm;
+            background: #fffdfa;
+            box-shadow: 0 25px 50px -12px rgba(107, 78, 79, 0.18);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 40px 50px;
+        }
+
+        /* Nét vẽ nhành cây mảnh mai trang trí */
+        .line-art-branch {
+            opacity: 0.08;
+            stroke: #6b4e51;
+            stroke-width: 1;
+        }
+
+        /* Tinh chỉnh thanh trượt cao cấp */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #7a5255;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: -5px;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: #e2d4ce;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-[#4a3b3c]">
+
+    <!-- THANH ĐIỀU HÀNH TỐI CAO CỦA CHỦ TIỆM -->
+    <header class="bg-[#4a3b3c] text-[#f7f0ed] px-6 py-4 shadow-md flex justify-between items-center border-b border-[#5e484a]">
+        <div class="flex items-center gap-3">
+            <div class="bg-[#e3969d]/20 p-2 rounded-xl text-xl">✨</div>
+            <div>
+                <h1 class="text-base font-serif-premium font-bold tracking-wider uppercase">Hệ Thống Duyệt Đơn Phút Chót</h1>
+                <p class="text-[10px] text-[#e3cace] tracking-wide font-medium">Bảo hiểm 2 lớp trước ngày gửi tặng • Đơn hàng: kY7sT2wQ</p>
+            </div>
+        </div>
+        <div>
+            <button onclick="alert('Đã khóa dữ liệu hoàn mỹ! Hệ thống sẽ tự động xuất file và bắn mail đúng hẹn vào 00:00 ngày mai.')" class="bg-gradient-to-r from-[#eaa4a9] to-[#d68fa8] hover:opacity-95 text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md transition cursor-pointer tracking-wider">
+                ✅ DUYỆT HOÀN MỸ - KHÓA ĐƠN CHỜ GỬI
+            </button>
+        </div>
+    </header>
+
+    <!-- BÀN LÀM VIỆC LỚN CHIA ĐÔI: TRÁI ĐIỀU CHỈNH - PHẢI SOI TRANH THẬT -->
+    <div class="flex-1 flex flex-col xl:flex-row overflow-hidden">
+        
+        <!-- BÊN TRÁI: BẢNG ĐIỀU KHIỂN RÚT GỌN NẰM NGĂN NẮP -->
+        <div class="w-full xl:w-[420px] bg-white border-r border-[#ebdcd5] p-5 space-y-5 overflow-y-auto shadow-inner flex-shrink-0">
+            <div>
+                <span class="text-[9px] font-black tracking-widest text-[#b89598] uppercase">Studio Control Panel</span>
+                <h2 class="text-base font-serif-premium font-bold text-[#543d40] mt-0.5">Tinh Chỉnh Từng Trang Sách</h2>
+            </div>
+
+            <!-- HỘP ĐIỀU KHIỂN TẤM ẢNH SỐ 1 -->
+            <div class="bg-[#fdfaf8] border border-[#ede2dc] p-4 rounded-2xl space-y-4">
+                <div class="flex justify-between items-center border-b border-[#f2eae4] pb-2">
+                    <span class="text-xs font-bold text-[#7a5255] bg-[#fff0f2] px-2.5 py-1 rounded-lg tracking-wider">MẢNH GHÉP SỐ 01</span>
+                    <span class="text-[10px] text-slate-400 font-medium">Ảnh gốc phối 2 trục</span>
+                </div>
+
+                <!-- 1. Thanh kéo dời ảnh trái phải -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-500">
+                        <span>↔ DỜI TRÁI / PHẢI</span>
+                        <span id="ctrlValX" class="font-mono text-[#7a5255]">50%</span>
+                    </div>
+                    <input type="range" id="inputX" min="0" max="100" value="50" class="w-full cursor-pointer" oninput="syncLiveStudio()">
+                </div>
+
+                <!-- 2. Thanh kéo dời ảnh lên xuống -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-500">
+                        <span>↕ DỜI LÊN / XUỐNG</span>
+                        <span id="ctrlValY" class="font-mono text-[#7a5255]">50%</span>
+                    </div>
+                    <input type="range" id="inputY" min="0" max="100" value="50" class="w-full cursor-pointer" oninput="syncLiveStudio()">
+                </div>
+
+                <!-- 3. THANH TRƯỢT CỠ CHỮ RIÊNG BIỆT DÀNH CHO TRANG NÀY -->
+                <div class="space-y-1 pt-2 border-t border-[#f2eae4]">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-600">
+                        <span>🔎 CỠ CHỮ THƯ TÌNH (FONT SIZE)</span>
+                        <span id="ctrlValSize" class="font-mono font-bold text-rose-500">22px</span>
+                    </div>
+                    <input type="range" id="inputSize" min="14" max="50" value="22" class="w-full cursor-pointer" oninput="syncLiveStudio()">
+                </div>
+
+                <!-- 4. Ô gõ bức thư tình của khách -->
+                <div class="space-y-1 pt-1">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase">Nội dung thư tình (Admin sửa đổi chống tràn):</label>
+                    <textarea id="inputText" rows="4" class="w-full p-3 text-xs rounded-xl border border-[#ede2dc] focus:outline-none focus:border-[#e3969d] bg-white font-handwrite-soft text-[#5e4446] leading-relaxed shadow-xs" oninput="syncLiveStudio()">Gặp được em là điều may mắn nhất đời anh. Nụ cười của em hôm đó làm anh nhớ mãi chẳng thể quên. Dù sau này thế giới có đổi thay, anh vẫn sẽ nắm chặt tay em đi qua mọi thăng trầm, viết tiếp chương nhạc hạnh phúc của hai đứa mình. Yêu em nhiều hơn mỗi ngày!</textarea>
+                </div>
+            </div>
+
+            <!-- KHUNG THÔNG TIN CHUNG BÌA SÁCH -->
+            <div class="bg-[#faf8f6] border border-[#ede2dc] p-4 rounded-2xl space-y-3">
+                <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Thông tin trang bìa</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold mb-1">Người gửi (A):</label>
+                        <input type="text" id="inputNameA" value="Duy Anh" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none bg-white font-bold" oninput="syncLiveStudio()">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold mb-1">Người nhận (B):</label>
+                        <input type="text" id="inputNameB" value="Hà Chi" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none bg-white font-bold" oninput="syncLiveStudio()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BÊN PHẢI: KHÔNG GIAN SOI PREVIEW TRANG SÁCH THỰC TẾ TRỰC QUAN CHUẨN XUẤT XƯỞNG -->
+        <div class="flex-1 bg-[#f5ebe6] p-6 flex items-center justify-center overflow-auto">
+            
+            <div class="scale-[0.55] sm:scale-[0.65] md:scale-[0.75] lg:scale-[0.85] xl:scale-100 origin-center transition-all">
+                
+                <!-- ĐÂY CHÍNH LÀ BẢN REPLICA 100% CỦA FILE PDF SẼ XUẤT XƯỞNG -->
+                <div class="pdf-preview-canvas">
+                    
+                    <!-- Header góc giấy phẳng lặng -->
+                    <div class="flex justify-between items-center text-[9px] font-bold tracking-[0.2em] text-[#c4b2b4] border-b border-[#f2eae6] pb-3 uppercase select-none">
+                        <span id="pdfHeaderNames">Hà Chi & Duy Anh</span>
+                        <span>Mảnh ghép kỷ niệm số 01</span>
+                    </div>
+                    
+                    <!-- Bố cục vàng đối xứng của trang thơ -->
+                    <div class="flex items-center justify-between h-full my-6 gap-12 px-8">
+                        
+                        <!-- Khung ảnh Polaroid to bản, rõ nét, ăn theo tọa độ X và Y trực quan -->
+                        <div class="bg-white p-5 pb-16 rounded-2xl shadow-[0_15px_35px_rgba(143,122,124,0.1)] border border-[#ede3de] w-[300px] flex-shrink-0 transform -rotate-1 relative select-none">
+                            <div class="w-full h-64 bg-[#faf6f3] rounded-xl overflow-hidden shadow-inner">
+                                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600" id="pdfPolaroidImg" class="w-full h-full object-cover transition-none" style="object-position: 50% 50%">
+                            </div>
+                            <!-- Chữ chân ảnh trầm ấm espresso đậm tương phản dễ thấy -->
+                            <div id="pdfPolaroidLabel" class="text-center text-[11px] font-bold text-[#6b5557] tracking-[0.25em] mt-5 uppercase truncate px-1">Hà Chi & Duy Anh</div>
+                        </div>
+                        
+                        <!-- Hộp văn bản bức thư tay mềm mại sạch sẽ, co dãn size chữ theo thanh trượt -->
+                        <div class="flex-1 px-4 flex flex-col justify-center h-72 relative">
+                            <p id="pdfLetterText" class="font-handwrite-soft text-[#5e4446] leading-relaxed text-justify italic font-medium" style="font-size: 22px;">
+                                Gặp được em là điều may mắn nhất đời anh. Nụ cười của em hôm đó làm anh nhớ mãi chẳng thể quên. Dù sau này thế giới có đổi thay, anh vẫn sẽ nắm chặt tay em đi qua mọi thăng trầm, viết tiếp chương nhạc hạnh phúc của hai đứa mình. Yêu em nhiều hơn mỗi ngày!
+                            </p>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Footer chân giấy đồng bộ -->
+                    <div class="text-center text-[8px] font-bold text-[#c4b2b4] tracking-[0.25em] uppercase select-none">✧ Tiệm Thương Thương Lưu Giữ Kỷ Niệm ✧</div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- HÀM ĐIỀU KHIỂN ĐỒNG BỘ ĐỘNG TRỰC QUAN BỐN HƯỚNG -->
+    <script>
+        function syncLiveStudio() {
+            // 1. Thu thập dữ liệu từ thanh điều khiển trái
+            const x = document.getElementById('inputX').value;
+            const y = document.getElementById('inputY').value;
+            const fontSize = document.getElementById('inputSize').value;
+            const textContent = document.getElementById('inputText').value;
+            const nameA = document.getElementById('inputNameA').value || "Người Gửi";
+            const nameB = document.getElementById('inputNameB').value || "Người Nhận";
+
+            // 2. Cập nhật các con số hiển thị bên cạnh thanh trượt
+            document.getElementById('ctrlValX').innerText = x + "%";
+            document.getElementById('ctrlValY').innerText = y + "%";
+            document.getElementById('ctrlValSize').innerText = fontSize + "px";
+
+            // 3. ÉP TRANG PREVIEW PDF BÊN PHẢI BIẾN ĐỔI THEO THỜI GIAN THỰC
+            // Dời ảnh tự do 2 trục
+            document.getElementById('pdfPolaroidImg').style.objectPosition = `${x}% ${y}%`;
+            // Chỉnh cỡ chữ riêng biệt cho bức thư
+            document.getElementById('pdfLetterText').style.fontSize = `${fontSize}px`;
+            // Đổi nội dung bức thư tình
+            document.getElementById('pdfLetterText').innerText = textContent || "(Chưa gõ nội dung)";
+            
+            // Đổi các nhãn danh xưng của cặp đôi trên trang giấy
+            const standardLabel = `${nameB} & ${nameA}`;
+            document.getElementById('pdfHeaderNames').innerText = standardLabel;
+            document.getElementById('pdfPolaroidLabel').innerText = standardLabel;
+        }
+
+        // Chạy kích hoạt đồng bộ ngay khi trang vừa tải lên để ăn khớp dữ liệu ban đầu
+        window.onload = syncLiveStudio;
+    </script>
+</body>
+</html>

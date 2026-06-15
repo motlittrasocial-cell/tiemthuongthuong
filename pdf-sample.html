@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Layout Xuất File PDF - Tiệm Thương Thương</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    // Tuyệt chiêu tự động nhận diện: Nếu đang chạy trên máy tính thì gọi localhost, nếu đã lên mạng thì tự gọi tên miền
+    thật!
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : 'https://api.tiemthuongthuong.com'; // Sau này có tên miền thật bạn chỉ cần điền vào đây đúng 1 lần
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap');
+
+        .font-chuviet {
+            font-family: 'Fuzzy', serif;
+        }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
+
+        .font-chuviet-dung {
+            font-family: 'Itim', serif;
+        }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,400;1,600&family=Mali:ital,wght=0,500;0,600;1,500&display=swap');
+
+        .font-serif-premium {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .font-handwrite-soft {
+            font-family: 'Mali', cursive;
+        }
+
+        /* Định dạng chuẩn Slide ngang A4 để khi xuất PDF không bị méo lệch */
+        .pdf-page {
+            width: 297mm;
+            height: 210mm;
+            background: #fffdfa;
+            /* Màu nền giấy kem organic dịu mắt */
+            margin: 30px auto;
+            box-shadow: 0 20px 40px -15px rgba(165, 140, 140, 0.15);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 50px;
+        }
+
+        /* Nét vẽ line-art mảnh mai trang trí góc giấy */
+        .line-art-branch {
+            opacity: 0.08;
+            stroke: #6b4e51;
+            stroke-width: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-[#f5ebe6] py-10 text-[#4a3b3c]">
+
+    <div class="text-center mb-6 space-y-1">
+        <span
+            class="text-[10px] font-bold tracking-[0.3em] text-[#9e8386] bg-white px-3 py-1 rounded-full shadow-xs">ARTBOOK
+            PREVIEW</span>
+        <h2 class="text-xl font-serif-premium font-bold text-[#5c4648] pt-2">BẢN XEM TRƯỚC SÁCH KỶ NIỆM SỐ THƯƠNG THƯƠNG
+        </h2>
+        <p class="text-xs text-[#9e8386]">Mô phỏng chính xác cấu trúc xuất file tự động gửi mail cho người A trước ngày
+            xóa link</p>
+    </div>
+
+    <div class="pdf-page relative">
+        <div class="absolute top-0 right-0 w-48 h-48 pointer-events-none">
+            <svg viewBox="0 0 100 100" class="w-full h-full line-art-branch transform rotate-90">
+                <path d="M10,90 Q40,40 90,10 M40,60 Q20,40 15,25 M60,40 Q50,20 35,15 M75,25 Q70,5 55,5" fill="none" />
+            </svg>
+        </div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 pointer-events-none">
+            <svg viewBox="0 0 100 100" class="w-full h-full line-art-branch">
+                <path d="M10,90 Q40,40 90,10 M40,60 Q20,40 15,25 M60,40 Q50,20 35,15" fill="none" />
+            </svg>
+        </div>
+
+        <div class="text-center my-auto space-y-6">
+            <div class="text-xs text-[#b89598] tracking-[0.4em] font-medium uppercase">✧ ✦ ✧</div>
+            <h1 class="text-5xl font-serif-premium font-bold text-[#543d40] tracking-wide italic">Our Sweet Memory Book
+            </h1>
+            <p class="text-[11px] font-handwrite-soft text-[#9e8386] tracking-widest uppercase">Hành trình 7 Ngày Ngọt
+                Ngào</p>
+
+            <div class="w-16 h-[1px] bg-[#e3cace] mx-auto my-6"></div>
+
+            <div class="text-3xl font-serif-premium italic text-[#6e4e51]">
+                Hà Chi <span class="text-xs font-sans not-italic text-[#c29b9e] mx-3">&</span> Duy Anh
+            </div>
+            <p class="text-[12px] text-[#bdaab0] font-medium tracking-wide">Kỷ niệm được đóng gói tự động ngày 14 tháng
+                06 năm 2026</p>
+        </div>
+
+        <div class="text-center text-[10px] font-bold text-[#c4b2b4] tracking-[0.25em] uppercase">✧ Tiệm Thương Thương
+            Lưu Giữ Kỷ Niệm ✧</div>
+    </div>
+
+    <div class="pdf-page">
+        <div
+            class="flex justify-between items-center text-[9px] font-bold tracking-[0.2em] text-[#c4b2b4] border-b border-[#f2eae6] pb-3 uppercase">
+            <span>Hà Chi & Duy Anh</span>
+            <span>Mảnh ghép kỷ niệm số 01</span>
+        </div>
+
+        <div class="flex items-center justify-between h-full my-6 gap-12 px-8">
+
+            <div
+                class="bg-white p-5 pb-16 rounded-2xl shadow-[0_15px_35px_rgba(143,122,124,0.1)] border border-[#ede3de] w-[300px] flex-shrink-0 transform -rotate-1 relative">
+                <div class="w-full h-64 bg-[#faf6f3] rounded-xl overflow-hidden shadow-inner">
+                    <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600"
+                        class="w-full h-full object-cover" style="object-position: center 50%">
+                </div>
+                <div class="text-center text-[11px] font-bold text-[#6b5557] tracking-[0.25em] mt-5 uppercase">Hà Chi &
+                    Duy Anh</div>
+            </div>
+
+            <div class="flex-1 px-4 flex flex-col justify-center h-72 relative">
+                <div id="dynamicTextContainer"
+                    class="font-chuviet text-[#5e4446] leading-relaxed text-justify italic font-medium">
+                    Gặp được em là điều may mắn nhất đời anh. Nụ cười của em hôm đó làm anh nhớ mãi chẳng thể quên. Dù
+                    sau này thế giới có đổi thay, anh vẫn sẽ nắm chặt tay em đi qua mọi thăng trầm, viết tiếp chương
+                    nhạc hạnh phúc của hai đứa mình. Yêu em nhiều hơn mỗi ngày!
+                </div>
+            </div>
+
+        </div>
+
+        <div class="text-center text-[10px] font-bold text-[#c4b2b4] tracking-[0.25em] uppercase">✧ Tiệm Thương Thương
+            Lưu Giữ Kỷ Niệm ✧</div>
+    </div>
+
+    <div class="pdf-page bg-[#4a3b3c] text-[#f7f0ed]">
+
+        <div class="text-center my-auto space-y-6 max-w-2xl mx-auto">
+            <!-- Tăng hẳn lên text-[55px] để bù trừ cho độ mảnh của font, thêm tracking-[0.05em] để các chữ giãn ra không bị dính vào nhau -->
+            <p id="dynamicTextContainer"
+                class="text-[30px] font-chuviet text-[#5e4446] leading-relaxed italic px-10 tracking-[0.05em]">
+                "Dù mai sau thế giới có đổi thay, những thước phim này vẫn là minh chứng vô giá cho một tình yêu chân
+                thành đã từng rực rỡ như thế..."
+            </p>
+
+            <div class="w-12 h-[1px] bg-[#6e5456] mx-auto my-4"></div>
+
+            <div class="space-y-1">
+                <!-- Tăng lên text-2xl và thêm tracking rộng cho sang -->
+                <p class="text-[22px] font-chuviet-dung text-[#ba9fa1] tracking-wide">Tiệm Thương Thương gửi bạn với tất
+                    cả sự trân trọng 🌸</p>
+            </div>
+        </div>
+
+        <div class="text-center text-[10px] font-bold text-[#8f7476] tracking-[0.25em] uppercase">✧ Tiệm Thương Thương
+            Lưu Giữ Kỷ Niệm ✧</div>
+    </div>
+
+    <script>
+        function autoScaleText() {
+            const container = document.getElementById('dynamicTextContainer');
+            if (!container) return;
+
+            const textLength = container.innerText.trim().length;
+
+            // Nâng cỡ chữ của các hạn mức lên cao hơn để phù hợp với font Calligraphy mảnh
+            if (textLength < 50) {
+                container.style.fontSize = '55px';
+            } else if (textLength < 120) {
+                container.style.fontSize = '45px';
+            } else if (textLength < 200) {
+                container.style.fontSize = '35px';
+            } else {
+                container.style.fontSize = '25px'; // Hạn mức thấp nhất giờ là 35px chứ không phải 18px nữa!
+            }
+        }
+        window.onload = autoScaleText;
+    </script>
+
+    // Kích hoạt lệnh tính toán ngay khi trang web vừa tải xong
+    window.onload = autoScaleText;
+    </script>
+</body>
+
+</html>
