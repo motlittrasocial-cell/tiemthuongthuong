@@ -10,6 +10,7 @@ const axios = require('axios');
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Hỗ trợ up nhiều ảnh chất lượng cao cùng lúc
+app.use(express.static(__dirname));
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
@@ -248,4 +249,7 @@ cron.schedule('0 22 * * *', async () => {
     }
 });
 
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
 app.listen(3000, () => console.log('🚀 Bộ não Backend Tiệm Thương Thương vận hành trên cổng 3000...'));
