@@ -57,7 +57,7 @@ app.post('/api/create-order', async (req, res) => {
         expiresAt.setDate(expiresAt.getDate() + daysLeft);
 
         const { error: orderError } = await supabase.from('orders').insert([{
-            id: orderId, email_a, phone_a, name_a, name_b, password_b, package_type, expires_at: expiresAt, status: 'active'
+            id: orderId, email_a, phone_a, name_a, name_b, password_b, package_type, expires_at: expiresAt, status: 'pending_payment'
         }]);
         if (orderError) return res.status(400).json({ success: false, message: orderError.message });
 
@@ -80,7 +80,49 @@ app.post('/api/create-order', async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+await axios.post(
+    `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+    {
+        chat_id: process.env.TELEGRAM_CHAT_ID,
+        text:
+            `🔔 ĐƠN HÀNG MỚI
 
+            Mã đơn: ${orderId}
+
+            Người đặt: ${name_a}
+            Email: ${email_a}
+            SĐT: ${phone_a}
+
+            Người nhận: ${name_b}
+
+            Gói: ${package_type}
+
+        ⚠️ Chờ kiểm tra chuyển khoản`
+    }
+);
+// API admin 
+app.post('/api/admin/approve-order', async (req, res) => {
+    const { order_id } = req.body;
+
+    const { data: order } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', order_id)
+        .single();
+
+    if (!order) {
+        return res.status(404).json({ success: false });
+    }
+
+    await supabase
+        .from('orders')
+        .update({ status: 'active' })
+        .eq('id', order_id);
+
+    // gửi email chứa link
+
+    res.json({ success: true });
+});
 // API 2: Trả thông tin cho Game (Tự sinh thẻ thông hành Signed URL 15 phút bảo mật)
 app.post('/api/verify-game', async (req, res) => {
     const { order_id, password } = req.body;
