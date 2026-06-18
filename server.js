@@ -205,29 +205,44 @@ app.post('/api/telegram-webhook', async (req, res) => {
 
 
 // API 3: Xác thực vào chơi game (CHỈ CHO PHÉP ĐƠN ĐÃ ĐƯỢC DUYỆT ACTIVE VÀO CHƠI)
+// API XÁC THỰC VÀO TRANG CHƠI GAME (ĐÃ UPDATE: BỐC ẢNH TỪ TABLE MEMORIES)
 app.post('/api/verify-game', async (req, res) => {
     const { order_id, password } = req.body;
 
     try {
-        // 1. Lấy thông tin đơn hàng từ Supabase
-        const { data: order, error } = await supabase
+        // 1. Thò tay vào table 'orders' check thông tin hành chính & pass trước
+        const { data: order, error: orderError } = await supabase
             .from('orders')
             .select('*')
             .eq('id', order_id)
             .single();
 
-        if (error || !order) {
+        if (orderError || !order) {
             return res.status(404).json({ success: false, message: "Không tìm thấy mã số quà tặng này trên hệ thống!" });
         }
 
-        // 2. Kiểm tra xem đơn hàng đã được Tiệm bấm duyệt tiền chưa
+        // 2. Chặn lại nếu Tiệm chưa bấm Accept duyệt tiền trên Telegram
         if (order.status !== 'active') {
             return res.status(400).json({ success: false, message: "Hộp quà này chưa được kích hoạt thanh toán hoặc đã hết hạn nha!" });
         }
 
-        // 3. BẮT BUỘC PHẢI TRÙNG MẬT KHẨU BẢO MẬT CỦA NGƯỜI TẠO (PASSWORD_B)
+        // 3. Kiểm tra mật khẩu bảo mật của người tạo đơn
         if (order.password_b !== password) {
             return res.status(401).json({ success: false, message: "Mật khẩu bảo mật chưa chính xác rồi bạn ơi!" });
+        }
+
+        // =========================================================================
+        // 🔥 BƯỚC THẦN THÁNH: THÒ TAY SANG TABLE 'MEMORIES' HỐT ẢNH VỀ CHO GAME
+        // =========================================================================
+        // Lấy ra các cột: id (để làm memory_id), image_url, offset_x, offset_y của đơn này
+        const { data: memories, error: memoriesError } = await supabase
+            .from('memories')
+            .select('id, image_url, offset_x, offset_y')
+            .eq('order_id', order_id); // 💡 LƯU Ý: Nếu cột liên kết ở table memories của Tiệm đặt tên khác order_id (ví dụ: order) thì Tiệm đổi chữ 'order_id' màu đỏ bên trái này lại cho khớp nha!
+
+        if (memoriesError) {
+            console.error("❌ Lỗi truy vấn table memories:", memoriesError.message);
+            return res.status(500).json({ success: false, message: "Không thể bốc danh sách ảnh kỷ niệm từ hệ thống!" });
         }
 
         // 4. Tính toán số ngày còn lại (Mặc định gói 30 ngày)
@@ -236,13 +251,13 @@ app.post('/api/verify-game', async (req, res) => {
         const today = new Date();
         const daysLeft = Math.max(0, Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24)));
 
-        // 5. Trả về báu vật dựng bàn chơi lật bài
+        // 5. Trả dữ liệu về cho Frontend dựng bàn chơi
         res.json({
             success: true,
             name_a: order.name_a,
             name_b: order.name_b,
             days_left: daysLeft,
-            cards: order.images_data || [] 
+            cards: memories || [] // 🔥 ĐÃ ĐỔI: Bắn mảng ảnh thật bốc từ table memories về!
         });
 
     } catch (err) {
