@@ -235,15 +235,32 @@ app.post('/api/verify-game', async (req, res) => {
         // 🔥 BƯỚC THẦN THÁNH: THÒ TAY SANG TABLE 'MEMORIES' HỐT ẢNH VỀ CHO GAME
         // =========================================================================
         // Lấy ra các cột: id (để làm memory_id), image_url, offset_x, offset_y của đơn này
-        const { data: memories, error: memoriesError } = await supabase
+        // =========================================================================
+        // 🔥 TUYỆT CHIÊU: GIỮ DB SẠCH - NỐI LINK ĐỘNG TRÊN BỘ NHỚ TẠM
+        // =========================================================================
+        // Bước 1: Bốc dữ liệu gốc sạch sẽ từ database lên trước
+        const { data: rawMemories, error: memoriesError } = await supabase
             .from('memories')
-            .select('id, image_url:image_path, offset_x, offset_y')
-            .eq('order_id', order_id); // 💡 LƯU Ý: Nếu cột liên kết ở table memories của Tiệm đặt tên khác order_id (ví dụ: order) thì Tiệm đổi chữ 'order_id' màu đỏ bên trái này lại cho khớp nha!
+            .select('id, image_path, offset_x, offset_y')
+            .eq('order_id', order_id);
 
         if (memoriesError) {
             console.error("❌ Lỗi truy vấn table memories:", memoriesError.message);
             return res.status(500).json({ success: false, message: "Không thể bốc danh sách ảnh kỷ niệm từ hệ thống!" });
         }
+
+        // Bước 2: Tự động chuyển đổi tên file ngắn thành link URL công khai đầy đủ bằng SDK
+        const memories = rawMemories.map(item => {
+            // 💡 LƯU Ý: Tiệm kiểm tra xem tên cái 'Bucket' lưu ảnh trên Supabase Storage của Tiệm có phải tên là 'memories' không nhé. Nếu tên bucket đặt là 'images' hay chữ khác thì Tiệm đổi chữ 'memories' màu đỏ bên dưới lại nha!
+            const { data } = supabase.storage.from('memories').getPublicUrl(item.image_path);
+            
+            return {
+                id: item.id,
+                image_url: data.publicUrl, // Hàm tự đẻ ra link https://... full không góc chết gửi về cho game
+                offset_x: item.offset_x,
+                offset_y: item.offset_y
+            };
+        });
 
         // 4. Tính toán số ngày còn lại (Mặc định gói 30 ngày)
         const activeDate = new Date(order.updated_at || order.created_at);
