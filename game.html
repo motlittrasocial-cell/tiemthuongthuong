@@ -208,12 +208,72 @@
         let nameB = "Người Nhận";
 
         // Tự động bốc mã số Order ID từ đường dẫn link nếu có (Ví dụ khách click từ link gửi kèm)
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('id')) {
-            document.getElementById('gameOrderId').value = urlParams.get('id');
+        // =========================================================================
+        // 🔥 ĐÃ SỬA: TỰ ĐỘNG DIỆN KIẾN TỪ CLEAN URL DẠNG /game/MÃ_ĐƠN_HÀNG
+        // =========================================================================
+        let autoOrderId = "";
+        const pathParts = window.location.pathname.split('/');
+        const gameIndex = pathParts.indexOf('game');
+
+        // Nếu trên thanh địa chỉ có chữ /game/abc thì bốc lấy "abc" làm mã đơn hàng
+        if (gameIndex !== -1 && pathParts[gameIndex + 1]) {
+            autoOrderId = pathParts[gameIndex + 1].trim();
         }
 
-        // 2. HÀM XÁC THỰC MẬT KHẨU ĐỂ VÀO GAME (FETCH THẬT)
+        // Hàm tự động kích hoạt khi trang vừa tải xong
+        window.addEventListener('DOMContentLoaded', () => {
+            if (autoOrderId) {
+                // Điền sẵn mã vào ô nhập liệu cho khách thấy chuyên nghiệp
+                document.getElementById('gameOrderId').value = autoOrderId;
+                
+                // Thay đổi giao diện màn hình khóa thành trạng thái "Đang mở khóa..." đầy lãng mạn
+                const unlockScreen = document.getElementById('unlockScreen');
+                unlockScreen.innerHTML = `
+                    <div class="text-center space-y-4 py-8">
+                        <div class="inline-flex text-4xl animate-spin">🌸</div>
+                        <h2 class="text-xl font-bold text-[#724a4f]">Đang nhận diện chìa khóa...</h2>
+                        <p class="text-xs text-slate-400">Tiệm đang chuẩn bị căn phòng kỷ niệm của riêng hai bạn nha!</p>
+                    </div>
+                `;
+                
+                // Tự động gọi API xác thực luôn, không bắt khách bấm gì cả
+                autoVerifyDirectLink(autoOrderId);
+            }
+        });
+
+        // Hàm xác thực không cần mật khẩu dành riêng cho đường link báu vật từ Email
+        async function autoVerifyDirectLink(orderId) {
+            try {
+                const response = await fetch(`${API_URL}/api/verify-game`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId, is_direct_link: true })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    currentOrderId = orderId;
+                    nameA = data.name_a;
+                    nameB = data.name_b;
+                    serverCards = data.cards;
+
+                    document.getElementById('countdownClock').innerText = `${data.days_left} ngày`;
+                    
+                    document.getElementById('unlockScreen').classList.add('hidden');
+                    document.getElementById('gameScreen').classList.remove('hidden');
+
+                    setupGameBoard();
+                } else {
+                    alert(`🛎️ Thông báo từ Tiệm: ${data.message}\nBạn vui lòng nhập bằng tay mã số và mật khẩu nha!`);
+                    window.location.href = "/game.html"; 
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối tự động:", error);
+                alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng mạng nha!");
+            }
+        }
+
+        // LỆNH ĐĂNG NHẬP THỦ CÔNG (Khi khách vào bằng trang chủ gõ tay)
         async function verifyAndStartGame() {
             const orderIdInput = document.getElementById('gameOrderId').value.trim();
             const passwordInput = document.getElementById('gamePassword').value.trim();
@@ -235,12 +295,9 @@
                     currentOrderId = orderIdInput;
                     nameA = data.name_a;
                     nameB = data.name_b;
-                    serverCards = data.cards; // Mảng danh sách ảnh thật: [{id, image_url, offset_x, offset_y}]
+                    serverCards = data.cards;
 
-                    // Đổ số Ngày đếm ngược rút gọn lên giao diện
                     document.getElementById('countdownClock').innerText = `${data.days_left} ngày`;
-
-                    // Chuyển màn hình vào trò chơi
                     document.getElementById('unlockScreen').classList.add('hidden');
                     document.getElementById('gameScreen').classList.remove('hidden');
 
@@ -253,6 +310,8 @@
                 alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng mạng nha!");
             }
         }
+
+            
 
         // 3. KHỞI TẠO BÀN CHƠI GAME ĐỘNG THEO SỐ ẢNH THẬT CỦA GÓI DỊCH VỤ
         function setupGameBoard() {
