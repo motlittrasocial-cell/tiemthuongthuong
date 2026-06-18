@@ -319,7 +319,7 @@ app.post('/api/get-message', async (req, res) => {
 
         // Ký tên bảo mật cho tấm ảnh Polaroid phóng to xuất hiện trong Popup Modal công khai
         const { data: signData, error: signError } = await supabase.storage
-            .from('memories')
+            .from('photos')
             .createSignedUrl(memory.image_path, 3600);
 
         if (signError) {
