@@ -27,21 +27,36 @@ function generateOrderId() {
 
 // Hàm gửi Email báu vật kích hoạt (Tách riêng ra để gọi khi bạn bấm nút duyệt trên Telegram)
 async function sendActivationEmail(order, packageName) {
+    // 🔗 Tạo đường dẫn riêng biệt, sạch sẽ dạng Clean URL cho từng đơn hàng
+    const privateGameUrl = `https://tiemthuongthuong.com/game/${order.id}`; 
+
     const customerEmailHtml = `
         <div style="font-family: 'Arial', sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #f0d5d7; border-radius: 15px; background-color: #fffafb;">
             <h2 style="color: #be7a81; text-align: center;">🌸 Tiệm Thương Thương 🌸</h2>
             <p>Chào bạn <b>${order.name_a}</b>,</p>
-            <p>Tiệm đã nhận được khoản thanh toán kích hoạt từ bạn. Hộp quà kỷ niệm lãng mạn dành tặng cho <b>${order.name_b}</b> đã chính thức mở khóa và niêm phong an toàn vào kho bảo mật Private 100%.</p>
+            <p>Khoản thanh toán kích hoạt của bạn đã được duyệt thành công! Hộp quà kỷ niệm lãng mạn dành tặng cho <b>${order.name_b}</b> đã chính thức mở khóa và đưa vào kho lưu trữ bảo mật.</p>
             
             <div style="background-color: #fdf1f2; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #be7a81;">
-                <p style="margin: 5px 0;">🔑 <b>Mã Số Quà Tặng (Order ID):</b> <code style="font-size: 14px; background: #fff; padding: 2px 6px; border-radius: 4px;">${order.id}</code></p>
-                <p style="margin: 5px 0;">🔒 <b>Mật Khẩu Bảo Mật:</b> <code>${order.password_b}</code></p>
                 <p style="margin: 5px 0;">📦 <b>Gói dịch vụ:</b> ${packageName}</p>
+                <p style="margin: 5px 0;">🔑 <b>Mã Số Quà Tặng:</b> <code style="font-size: 14px; background: #fff; padding: 2px 6px; border-radius: 4px;">${order.id}</code></p>
+                <p style="margin: 5px 0;">🔒 <b>Mật Khẩu Mở Khóa (Nếu vào từ Trang Chủ):</b> <code>${order.password_b}</code></p>
             </div>
 
-            <p style="font-size: 12px; color: #8a7375; line-height: 1.6;">
-                * <b>Hướng dẫn:</b> Bạn hãy gửi đường link trang chơi game kèm theo mã quà tặng và mật khẩu mật ở trên để người ấy vào lật hình mở khóa thư tình nhé!<br>
-                * Vì lý do bảo mật quyền riêng tư tối cao, toàn bộ hình ảnh và thư tay sẽ tự động kích hoạt lệnh tự hủy vĩnh viễn đúng sau ngày hết hạn.
+            <p style="margin-bottom: 5px; font-weight: bold; color: #7a5255; font-size: 13px;">🔗 Đường link trang chơi game riêng của hai bạn:</p>
+            <div style="background-color: #ffffff; border: 2px dashed #eab3b6; padding: 12px; border-radius: 10px; text-align: center; word-break: break-all; margin-bottom: 10px;">
+                <span style="font-family: 'Courier New', monospace; font-size: 15px; font-weight: bold; color: #be7a81; user-select: all;-webkit-user-select: all;">
+                    ${privateGameUrl}
+                </span>
+            </div>
+            
+            <div style="background-color: #fff9e6; border: 1px solid #ffeaa7; padding: 10px; border-radius: 8px; margin-bottom: 25px;">
+                <p style="margin: 0; font-size: 12px; color: #b77c1e; line-height: 1.5; text-align: justify;">
+                    ⚠️ <b>Lời nhắc bảo mật từ Tiệm:</b> Đường dẫn phía trên là chiếc chìa khóa duy nhất mở khóa kho tàng thanh xuân của hai bạn. Bạn hãy copy toàn bộ đường link này để gửi tặng người ấy nhé. Vui lòng tự lưu giữ bảo mật, không chia sẻ công khai lên mạng xã hội để bảo vệ vẹn nguyên những kỷ niệm cá nhân thiêng liêng này nha!
+                </p>
+            </div>
+
+            <p style="font-size: 12px; color: #8a7375; line-height: 1.5;">
+                * <b>Cách dùng:</b> Người ấy khi bấm vào đường link riêng này sẽ được tham gia lật ảnh chơi game ngay lập tức mà không cần điền mật khẩu. Nếu người ấy vào bằng cách gõ trang chủ, hệ thống mới đòi hỏi nhập đúng Mã quà tặng và Mật khẩu bảo mật ở trên.
             </p>
             <hr style="border: none; border-top: 1px dashed #f0d5d7; margin: 20px 0;">
             <p style="text-align: center; font-size: 12px; color: #bda2a5;">Cảm ơn bạn đã lựa chọn cất giữ thanh xuân tại Tiệm Thương Thương...</p>
