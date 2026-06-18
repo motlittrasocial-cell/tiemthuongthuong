@@ -116,21 +116,24 @@ app.post('/api/create-order', async (req, res) => {
         const priceText = package_type === '1_week' ? '39,000đ' : '59,000đ';
         const packageName = package_type === '1_week' ? '7 Ngày Ngọt Ngào 🌸' : '14 Ngày Gắn Kết ♾️';
 
-        const telegramAdminMsg = `🎁 *[TIỆM THƯƠNG THƯƠNG - ĐƠN HÀNG CHỜ DUYỆT]*\n────────────────────────\n*• Mã đơn:* \`${orderId}\`\n*• Gói chọn:* ${packageName}\n*• Số tiền cần check:* *${priceText}*\n\n*• Cặp đôi:* ${name_b} & ${name_a}\n*• SĐT liên hệ:* \`${phone_a}\`\n────────────────────────\n_Khách đã up xong ảnh và lời nhắn. Tiệm check tài khoản tinh tinh rồi nhấn nút duyệt ở dưới nha!_`;
+        // 🔥 ĐÃ SỬA: Chuyển sang tin nhắn thuần túy, an toàn 100% không sợ vỡ định dạng
+        const telegramAdminMsg = `🎁 [TIỆM THƯƠNG THƯƠNG - ĐƠN HÀNG CHỜ DUYỆT]\n------------------------\n• Mã đơn: ${orderId}\n• Gói chọn: ${packageName}\n• Số tiền cần check: ${priceText}\n\n• Cặp đôi: ${name_b} & ${name_a}\n• SĐT liên hệ: ${phone_a}\n------------------------\nKhách đã up xong ảnh và lời nhắn. Tiệm check tài khoản tinh tinh rồi nhấn nút duyệt ở dưới nha!`;
         
-        console.log(`🚀 [LOG] ĐANG GỌI SANG TELEGRAM API ĐỂ BẮN TIN NHẮN...`);
-        console.log(`  + Token đang dùng: ${process.env.TELEGRAM_BOT_TOKEN ? 'ĐÃ CÓ CHÌA KHÓA' : 'TRỐNG RỖNG O_O'}`);
-        console.log(`  + Chat ID đang dùng: ${process.env.TELEGRAM_CHAT_ID}`);
-
+        console.log("🚀 Đang bắn tin nhắn sang Telegram từ API đặt đơn...");
+        
         await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
             chat_id: process.env.TELEGRAM_CHAT_ID,
             text: telegramAdminMsg,
-            parse_mode: 'Markdown',
+            // XÓA BỎ parse_mode: 'Markdown' để an toàn tuyệt đối
             reply_markup: {
                 inline_keyboard: [[
                     { text: "✅ Xác nhận đã nhận tiền (Kích hoạt đơn)", callback_data: `approve_${orderId}` }
                 ]]
             }
+        }).then(() => {
+            console.log("🎉 LỆNH GỬI TELEGRAM TRÊN WEB ĐÃ THÀNH CÔNG RỒI TIỆM ƠI!!!");
+        }).catch((teleErr) => {
+            console.error("❌ LỖI RỒI! Telegram từ chối gửi vì lý do:", teleErr.response ? teleErr.response.data : teleErr.message);
         });
 
         console.log("🎉 🎉 🎉 [LOG THÀNH CÔNG TỐI THƯỢNG]: Telegram đã nhận lệnh và bắn thông báo thành công!");
