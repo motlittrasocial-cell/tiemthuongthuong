@@ -61,16 +61,21 @@ async function sendActivationEmail(order, packageName) {
 // 🛠️ HỆ THỐNG API ĐỒNG BỘ 100% QUY TRÌNH DUYỆT ĐƠN BẰNG NÚT BẤM
 // ========================================================
 
-// API 1: Khách đặt đơn (Chỉ bắn Telegram báo Admin, CHƯA gửi mail)
+// API 1: Khách đặt đơn (Đã thêm mắt thần Console Log để debug)
 app.post('/api/create-order', async (req, res) => {
+    console.log("\n🔔 [LOG] === CÓ YÊU CẦU ĐẶT ĐƠN MỚI CHẠM VÀO SERVER ===");
     try {
         const { email_a, phone_a, name_a, name_b, password_b, package_type, memories } = req.body;
+        console.log(`- Thông tin khách: Người gửi: ${name_a}, Người nhận: ${name_b}, SĐT: ${phone_a}`);
+        console.log(`- Số lượng ảnh khách gửi lên: ${memories ? memories.length : 0} tấm`);
         
         // Ràng buộc số lượng ảnh nghiêm ngặt
         if (package_type === '1_week' && (memories.length < 5 || memories.length > 6)) {
+            console.log("❌ [LOG] Thất bại: Gói 1 tuần sai số lượng ảnh.");
             return res.status(400).json({ success: false, message: "Gói 7 Ngày chỉ hỗ trợ từ 5-6 ảnh thôi nè!" });
         }
         if (package_type === '2_weeks' && (memories.length < 5 || memories.length > 10)) {
+            console.log("❌ [LOG] Thất bại: Gói 2 tuần sai số lượng ảnh.");
             return res.status(400).json({ success: false, message: "Gói 14 Ngày hỗ trợ từ 5-10 ảnh bạn nhé!" });
         }
 
@@ -79,29 +84,44 @@ app.post('/api/create-order', async (req, res) => {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + daysLeft);
 
-        // Lưu đơn với trạng thái mặc định 'pending_payment'
+        console.log(`- Đang tiến hành lưu thông tin đơn hàng vào bảng 'orders' với ID: ${orderId}...`);
         const { error: orderError } = await supabase.from('orders').insert([{
             id: orderId, email_a, phone_a, name_a, name_b, password_b, package_type, expires_at: expiresAt, status: 'pending_payment'
         }]);
-        if (orderError) return res.status(400).json({ success: false, message: orderError.message });
+        if (orderError) {
+            console.error("❌ [LOG LỖI SUPABASE ORDERS]:", orderError.message);
+            return res.status(400).json({ success: false, message: orderError.message });
+        }
+        console.log("✅ [LOG] Lưu bảng 'orders' thành công!");
 
+        console.log("- Bắt đầu vòng lặp xử lý và upload ảnh lên Storage...");
         for (let i = 0; i < memories.length; i++) {
             const item = memories[i];
             const buffer = Buffer.from(item.base64_data.split(',')[1], 'base64');
+            
+            console.log(`  + Đang upload tấm ảnh thứ ${i + 1}/${memories.length} lên Storage...`);
             const { error: uploadError } = await supabase.storage.from('photos').upload(item.image_path, buffer, { contentType: 'image/jpeg' });
-            if (!uploadError) {
+            
+            if (uploadError) {
+                console.error(`  ❌ [LOG LỖI UPLOAD ẢNH KHÔNG THÀNH CÔNG]: Tấm thứ ${i + 1}:`, uploadError.message);
+            } else {
+                console.log(`  ✅ Upload ảnh thứ ${i + 1} thành công. Đang lưu vào bảng 'memories'...`);
                 await supabase.from('memories').insert([{
                     order_id: orderId, image_path: item.image_path, message: item.message, offset_x: item.offset_x || 50, offset_y: item.offset_y || 50
                 }]);
             }
         }
+        console.log("✅ [LOG] Xử lý toàn bộ ảnh và lưu bảng 'memories' xong!");
 
         const priceText = package_type === '1_week' ? '39,000đ' : '59,000đ';
         const packageName = package_type === '1_week' ? '7 Ngày Ngọt Ngào 🌸' : '14 Ngày Gắn Kết ♾️';
 
-        // 🔥 ĐỘT PHÁ: Gửi Telegram ĐÍNH KÈM NÚT BẤM CÔNG NGHỆ CAO (Inline Keyboard)
         const telegramAdminMsg = `🎁 *[TIỆM THƯƠNG THƯƠNG - ĐƠN HÀNG CHỜ DUYỆT]*\n────────────────────────\n*• Mã đơn:* \`${orderId}\`\n*• Gói chọn:* ${packageName}\n*• Số tiền cần check:* *${priceText}*\n\n*• Cặp đôi:* ${name_b} & ${name_a}\n*• SĐT liên hệ:* \`${phone_a}\`\n────────────────────────\n_Khách đã up xong ảnh và lời nhắn. Tiệm check tài khoản tinh tinh rồi nhấn nút duyệt ở dưới nha!_`;
         
+        console.log(`🚀 [LOG] ĐANG GỌI SANG TELEGRAM API ĐỂ BẮN TIN NHẮN...`);
+        console.log(`  + Token đang dùng: ${process.env.TELEGRAM_BOT_TOKEN ? 'ĐÃ CÓ CHÌA KHÓA' : 'TRỐNG RỖNG O_O'}`);
+        console.log(`  + Chat ID đang dùng: ${process.env.TELEGRAM_CHAT_ID}`);
+
         await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
             chat_id: process.env.TELEGRAM_CHAT_ID,
             text: telegramAdminMsg,
@@ -113,8 +133,18 @@ app.post('/api/create-order', async (req, res) => {
             }
         });
 
+        console.log("🎉 🎉 🎉 [LOG THÀNH CÔNG TỐI THƯỢNG]: Telegram đã nhận lệnh và bắn thông báo thành công!");
         res.json({ success: true, order_id: orderId });
+
     } catch (error) {
+        console.error("💥 💥 💥 [LOG LỖI NGUY HIỂM - CODE RỚT VÀO CỤM CATCH]:");
+        if (error.response) {
+            // Lỗi trả về từ phía Telegram API hoặc Axios API
+            console.error("  -> Chi tiết lỗi từ bên thứ 3:", error.response.data);
+        } else {
+            // Lỗi logic code thông thường
+            console.error("  -> Chi tiết lỗi:", error.message);
+        }
         res.status(500).json({ success: false, message: error.message });
     }
 });
