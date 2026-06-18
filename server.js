@@ -242,13 +242,20 @@ app.post('/api/verify-game', async (req, res) => {
         }
 
         // Thực hiện ký tên bảo mật động cho mảng ảnh
+        // =========================================================================
+        // 🛡️ BẢO MẬT TỐI THƯỢNG: TỰ ĐỘNG NỐI THƯ MỤC CON MÃ ĐƠN HÀNG (FOLDER)
+        // =========================================================================
         const memories = await Promise.all(rawMemories.map(async (item) => {
+            
+            // 🔥 ĐÃ SỬA: Nếu ảnh nằm trong thư mục mã đơn hàng, tụi mình nối chuỗi: order_id/tên_file
+            const fullStoragePath = `${order_id}/${item.image_path}`; 
+            
             const { data, error } = await supabase.storage
-                .from('memories') // ⚠️ Đảm bảo tên Bucket trên Supabase Storage của Tiệm khớp từng chữ với chữ này
-                .createSignedUrl(item.image_path, 3600); // Hết hạn sau 1 tiếng
+                .from('memories')
+                .createSignedUrl(fullStoragePath, 3600); // Ký tên bằng đường dẫn đầy đủ bao gồm folder
             
             if (error) {
-                console.error(`❌ [LỖI KÝ TÊN BUCKET]: Không thể ký tên cho file ${item.image_path}. Lý do thực tế:`, error.message);
+                console.error(`❌ [LỖI KÝ TÊN BUCKET]: Không thể ký tên cho file ${fullStoragePath}. Lý do thực tế:`, error.message);
             }
             
             return {
