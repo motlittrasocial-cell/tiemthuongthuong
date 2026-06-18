@@ -206,11 +206,13 @@ app.post('/api/telegram-webhook', async (req, res) => {
 
 // API 3: Xác thực vào chơi game (CHỈ CHO PHÉP ĐƠN ĐÃ ĐƯỢC DUYỆT ACTIVE VÀO CHƠI)
 // API XÁC THỰC VÀO TRANG CHƠI GAME (ĐÃ UPDATE: BỐC ẢNH TỪ TABLE MEMORIES)
+// =========================================================================
+// API 1: XÁC THỰC VÀO GAME VÀ KÝ TÊN ẢNH BẢO MẬT (ĐÃ THÊM LOG CHI TIẾT)
+// =========================================================================
 app.post('/api/verify-game', async (req, res) => {
     const { order_id, password } = req.body;
 
     try {
-        // 1. Thò tay vào table 'orders' check thông tin hành chính & pass trước
         const { data: order, error: orderError } = await supabase
             .from('orders')
             .select('*')
@@ -221,27 +223,14 @@ app.post('/api/verify-game', async (req, res) => {
             return res.status(404).json({ success: false, message: "Không tìm thấy mã số quà tặng này trên hệ thống!" });
         }
 
-        // 2. Chặn lại nếu Tiệm chưa bấm Accept duyệt tiền trên Telegram
         if (order.status !== 'active') {
             return res.status(400).json({ success: false, message: "Hộp quà này chưa được kích hoạt thanh toán hoặc đã hết hạn nha!" });
         }
 
-        // 3. Kiểm tra mật khẩu bảo mật của người tạo đơn
         if (order.password_b !== password) {
             return res.status(401).json({ success: false, message: "Mật khẩu bảo mật chưa chính xác rồi bạn ơi!" });
         }
 
-        // =========================================================================
-        // 🔥 BƯỚC THẦN THÁNH: THÒ TAY SANG TABLE 'MEMORIES' HỐT ẢNH VỀ CHO GAME
-        // =========================================================================
-        // Lấy ra các cột: id (để làm memory_id), image_url, offset_x, offset_y của đơn này
-        // =========================================================================
-        // 🔥 TUYỆT CHIÊU: GIỮ DB SẠCH - NỐI LINK ĐỘNG TRÊN BỘ NHỚ TẠM
-        // =========================================================================
-        // =========================================================================
-        // 🛡️ BẢO MẬT TỐI THƯỢNG: LINK KÝ TÊN CÓ THỜI HẠN (BUCKET GIỮ PRIVATE)
-        // =========================================================================
-        // Bước 1: Bốc dữ liệu gốc sạch sẽ từ database lên trước
         const { data: rawMemories, error: memoriesError } = await supabase
             .from('memories')
             .select('id, image_path, offset_x, offset_y')
@@ -252,42 +241,82 @@ app.post('/api/verify-game', async (req, res) => {
             return res.status(500).json({ success: false, message: "Không thể bốc danh sách ảnh kỷ niệm từ hệ thống!" });
         }
 
-        // Bước 2: Ép hệ thống đẻ ra đường Link Ký Tên (Signed URL) chỉ có thời hạn dùng trong 1 tiếng (3600 giây)
-        // Vì hàm sinh link này chạy bất đồng bộ (async/await) nên tụi mình dùng Promise.all để xử lý hàng loạt cực nhanh
+        // Thực hiện ký tên bảo mật động cho mảng ảnh
         const memories = await Promise.all(rawMemories.map(async (item) => {
             const { data, error } = await supabase.storage
-                .from('memories') // Tên bucket chứa ảnh của Tiệm
-                .createSignedUrl(item.image_path, 3600); // 3600 giây = 1 giờ
-            // 🔥 NẾU BỊ LỖI KÝ LINK, LỆNH NÀY SẼ ÉP TERMINAL VPS PHẢI IN RA MÀU ĐỎ
+                .from('memories') // ⚠️ Đảm bảo tên Bucket trên Supabase Storage của Tiệm khớp từng chữ với chữ này
+                .createSignedUrl(item.image_path, 3600); // Hết hạn sau 1 tiếng
+            
             if (error) {
-                console.error(`❌ [LỖI STORAGE] Không thể ký tên cho file ${item.image_path}:`, error.message);
+                console.error(`❌ [LỖI KÝ TÊN BUCKET]: Không thể ký tên cho file ${item.image_path}. Lý do thực tế:`, error.message);
             }
+            
             return {
                 id: item.id,
-                image_url: data ? data.signedUrl : '', // Link độc quyền có chứa mã token bảo mật tự hủy
+                image_url: data ? data.signedUrl : '', 
                 offset_x: item.offset_x,
                 offset_y: item.offset_y
             };
         }));
 
-        // 4. Tính toán số ngày còn lại (Mặc định gói 30 ngày)
         const activeDate = new Date(order.updated_at || order.created_at);
         const expireDate = new Date(activeDate.getTime() + (30 * 24 * 60 * 60 * 1000));
         const today = new Date();
         const daysLeft = Math.max(0, Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24)));
 
-        // 5. Trả dữ liệu về cho Frontend dựng bàn chơi
         res.json({
             success: true,
             name_a: order.name_a,
             name_b: order.name_b,
             days_left: daysLeft,
-            cards: memories || [] // 🔥 ĐÃ ĐỔI: Bắn mảng ảnh thật bốc từ table memories về!
+            cards: memories || []
         });
 
     } catch (err) {
         console.error("Lỗi hệ thống verify-game:", err.message);
         res.status(500).json({ success: false, message: "Lỗi kết nối hệ thống Backend rồi Tiệm ơi!" });
+    }
+});
+
+// =========================================================================
+// API 2: BÓC THƯ TAY KHI LẬT ĐÚNG CẶP ẢNH (BÙ ĐẮP LỖI 404 TRONG ẢNH CỦA TIỆM)
+// =========================================================================
+app.post('/api/get-message', async (req, res) => {
+    const { order_id, memory_id } = req.body;
+
+    try {
+        // Bốc lời nhắn bí mật từ table memories
+        const { data: memory, error: memError } = await supabase
+            .from('memories')
+            .select('id, message, image_path, offset_x, offset_y')
+            .eq('id', memory_id)
+            .eq('order_id', order_id)
+            .single();
+
+        if (memError || !memory) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy thông điệp kỷ niệm này!" });
+        }
+
+        // Ký tên bảo mật cho tấm ảnh Polaroid phóng to xuất hiện trong Popup Modal công khai
+        const { data: signData, error: signError } = await supabase.storage
+            .from('memories')
+            .createSignedUrl(memory.image_path, 3600);
+
+        if (signError) {
+            console.error(`❌ [LỖI KÝ TÊN POPUP]: Không thể ký tên phóng to cho file ${memory.image_path}:`, signError.message);
+        }
+
+        res.json({
+            success: true,
+            message: memory.message,
+            image_url: signData ? signData.signedUrl : '',
+            offset_x: memory.offset_x,
+            offset_y: memory.offset_y
+        });
+
+    } catch (err) {
+        console.error("Lỗi hệ thống get-message:", err.message);
+        res.status(500).json({ success: false, message: "Lỗi kết nối lấy thông điệp rồi Tiệm ơi!" });
     }
 });
 
