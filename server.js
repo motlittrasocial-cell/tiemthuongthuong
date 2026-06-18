@@ -258,7 +258,10 @@ app.post('/api/verify-game', async (req, res) => {
             const { data, error } = await supabase.storage
                 .from('memories') // Tên bucket chứa ảnh của Tiệm
                 .createSignedUrl(item.image_path, 3600); // 3600 giây = 1 giờ
-            
+            // 🔥 NẾU BỊ LỖI KÝ LINK, LỆNH NÀY SẼ ÉP TERMINAL VPS PHẢI IN RA MÀU ĐỎ
+            if (error) {
+                console.error(`❌ [LỖI STORAGE] Không thể ký tên cho file ${item.image_path}:`, error.message);
+            }
             return {
                 id: item.id,
                 image_url: data ? data.signedUrl : '', // Link độc quyền có chứa mã token bảo mật tự hủy
