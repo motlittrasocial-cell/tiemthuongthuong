@@ -56,7 +56,7 @@ async function sendActivationEmail(order, packageName) {
             </div>
 
             <p style="font-size: 12px; color: #8a7375; line-height: 1.5;">
-                * <b>Cách dùng:</b> Người ấy khi bấm vào đường link riêng này sẽ được tham gia lật ảnh chơi game ngay lập tức mà không cần điền mật khẩu. Nếu người ấy vào bằng cách gõ trang chủ, hệ thống mới đòi hỏi nhập đúng Mã quà tặng và Mật khẩu bảo mật ở trên.
+                * <b>Cách dùng:</b> Người ấy khi truy cập vào đường link riêng phía trên sẽ thấy Mã số quà tặng đã được hệ thống tự động điền sẵn và niêm phong. Người ấy chỉ cần gõ đúng chính xác <b>Mật Khẩu Bảo Mật</b> ở phía trên là căn phòng kỷ niệm sẽ lập tức mở ra!
             </p>
             <hr style="border: none; border-top: 1px dashed #f0d5d7; margin: 20px 0;">
             <p style="text-align: center; font-size: 12px; color: #bda2a5;">Cảm ơn bạn đã lựa chọn cất giữ thanh xuân tại Tiệm Thương Thương...</p>
@@ -207,32 +207,48 @@ app.post('/api/telegram-webhook', async (req, res) => {
 // API 3: Xác thực vào chơi game (CHỈ CHO PHÉP ĐƠN ĐÃ ĐƯỢC DUYỆT ACTIVE VÀO CHƠI)
 app.post('/api/verify-game', async (req, res) => {
     const { order_id, password } = req.body;
-    
-    const { data: order } = await supabase.from('orders').select('*').eq('id', order_id).single();
-    
-    // Nếu đơn hàng chưa được duyệt tiền (vẫn ở trạng thái pending_payment) -> Khóa cửa không cho vào game
-    if (!order || order.status === 'pending_payment') {
-        return res.status(401).json({ success: false, message: "Hộp quà này đang chờ Chủ tiệm kiểm tra giao dịch chuyển khoản và kích hoạt bạn nha!" });
-    }
-    if (order.password_b !== password) {
-        return res.status(401).json({ success: false, message: "Mật khẩu bảo mật không chính xác rồi ạ!" });
-    }
 
-    const timeLeft = new Date(order.expires_at) - new Date();
-    const daysLeft = Math.max(0, Math.ceil(timeLeft / (1000 * 60 * 60 * 24)));
+    try {
+        // 1. Lấy thông tin đơn hàng từ Supabase
+        const { data: order, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', order_id)
+            .single();
 
-    const { data: memories } = await supabase.from('memories').select('id, image_path, offset_x, offset_y').eq('order_id', order_id);
-    
-    const cards = [];
-    for (const item of memories) {
-        const { data: signedData } = await supabase.storage.from('photos').createSignedUrl(item.image_path, 900);
-        cards.push({
-            id: item.id, offset_x: item.offset_x, offset_y: item.offset_y,
-            image_url: signedData ? signedData.signedUrl : ""
+        if (error || !order) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy mã số quà tặng này trên hệ thống!" });
+        }
+
+        // 2. Kiểm tra xem đơn hàng đã được Tiệm bấm duyệt tiền chưa
+        if (order.status !== 'active') {
+            return res.status(400).json({ success: false, message: "Hộp quà này chưa được kích hoạt thanh toán hoặc đã hết hạn nha!" });
+        }
+
+        // 3. BẮT BUỘC PHẢI TRÙNG MẬT KHẨU BẢO MẬT CỦA NGƯỜI TẠO (PASSWORD_B)
+        if (order.password_b !== password) {
+            return res.status(401).json({ success: false, message: "Mật khẩu bảo mật chưa chính xác rồi bạn ơi!" });
+        }
+
+        // 4. Tính toán số ngày còn lại (Mặc định gói 30 ngày)
+        const activeDate = new Date(order.updated_at || order.created_at);
+        const expireDate = new Date(activeDate.getTime() + (30 * 24 * 60 * 60 * 1000));
+        const today = new Date();
+        const daysLeft = Math.max(0, Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24)));
+
+        // 5. Trả về báu vật dựng bàn chơi lật bài
+        res.json({
+            success: true,
+            name_a: order.name_a,
+            name_b: order.name_b,
+            days_left: daysLeft,
+            cards: order.images_data || [] 
         });
-    }
 
-    res.json({ success: true, name_a: order.name_a, name_b: order.name_b, days_left: daysLeft, cards });
+    } catch (err) {
+        console.error("Lỗi hệ thống verify-game:", err.message);
+        res.status(500).json({ success: false, message: "Lỗi kết nối hệ thống Backend rồi Tiệm ơi!" });
+    }
 });
 
 // (Giữ nguyên đoạn API bốc API Admin Studio và Cron Job quét rà soát PDF lùi lịch 2 ngày phía dưới...)
