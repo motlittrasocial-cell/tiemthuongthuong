@@ -245,17 +245,31 @@ app.post('/api/verify-game', async (req, res) => {
         // =========================================================================
         // 🛡️ BẢO MẬT TỐI THƯỢNG: TỰ ĐỘNG NỐI THƯ MỤC CON MÃ ĐƠN HÀNG (FOLDER)
         // =========================================================================
+        // =========================================================================
+        // 🚀 ĐÃ SỬA: TỰ ĐỘNG THỬ CẢ 2 ĐƯỜNG DẪN (CÓ FOLDER HOẶC KHÔNG CÓ FOLDER)
+        // =========================================================================
         const memories = await Promise.all(rawMemories.map(async (item) => {
+            // Thử kiểu 1: Tìm trực tiếp file ở ngoài rìa
+            let pathToCheck = item.image_path;
+            let { data, error } = await supabase.storage
+                .from('memories') // ⚠️ Nhắc bài: Hãy chắc chắn tên Bucket trên Supabase đúng là 'memories' nha!
+                .createSignedUrl(pathToCheck, 3600);
+
+            // Nếu kiểu 1 thất bại (error), tự động chuyển sang kiểu 2: Tìm trong folder mã đơn hàng
+            if (error || !data) {
+                pathToCheck = `${order_id}/${item.image_path}`;
+                const retry = await supabase.storage
+                    .from('memories')
+                    .createSignedUrl(pathToCheck, 3600);
+                data = retry.data;
+                error = retry.error;
+            }
             
-            // 🔥 ĐÃ SỬA: Nếu ảnh nằm trong thư mục mã đơn hàng, tụi mình nối chuỗi: order_id/tên_file
-            const fullStoragePath = `${order_id}/${item.image_path}`; 
-            
-            const { data, error } = await supabase.storage
-                .from('memories')
-                .createSignedUrl(fullStoragePath, 3600); // Ký tên bằng đường dẫn đầy đủ bao gồm folder
-            
+            // Nếu cả 2 kiểu đều không thấy thì mới gào lỗi ra Terminal
             if (error) {
-                console.error(`❌ [LỖI KÝ TÊN BUCKET]: Không thể ký tên cho file ${fullStoragePath}. Lý do thực tế:`, error.message);
+                console.error(`❌ [THẤT BẠI TOÀN TẬP]: Tên file gốc trong DB là "${item.image_path}". Tìm ở ngoài hay trong folder "${order_id}/" đều không thấy file này trên Storage!`);
+            } else {
+                console.log(`🌸 [KÝ TÊN THÀNH CÔNG]: Đã tìm thấy và ký tên cho file tại đường dẫn: ${pathToCheck}`);
             }
             
             return {
@@ -265,7 +279,6 @@ app.post('/api/verify-game', async (req, res) => {
                 offset_y: item.offset_y
             };
         }));
-
         const activeDate = new Date(order.updated_at || order.created_at);
         const expireDate = new Date(activeDate.getTime() + (30 * 24 * 60 * 60 * 1000));
         const today = new Date();
