@@ -232,7 +232,7 @@ app.post('/api/verify-game', async (req, res) => {
         }
 
         const { data: rawMemories, error: memoriesError } = await supabase
-            .from('memories')
+            .from('photos')
             .select('id, image_path, offset_x, offset_y')
             .eq('order_id', order_id);
 
@@ -252,14 +252,14 @@ app.post('/api/verify-game', async (req, res) => {
             // Thử kiểu 1: Tìm trực tiếp file ở ngoài rìa
             let pathToCheck = item.image_path;
             let { data, error } = await supabase.storage
-                .from('memories') // ⚠️ Nhắc bài: Hãy chắc chắn tên Bucket trên Supabase đúng là 'memories' nha!
+                .from('photos') // ⚠️ Nhắc bài: Hãy chắc chắn tên Bucket trên Supabase đúng là 'memories' nha!
                 .createSignedUrl(pathToCheck, 3600);
 
             // Nếu kiểu 1 thất bại (error), tự động chuyển sang kiểu 2: Tìm trong folder mã đơn hàng
             if (error || !data) {
                 pathToCheck = `${order_id}/${item.image_path}`;
                 const retry = await supabase.storage
-                    .from('memories')
+                    .from('photos')
                     .createSignedUrl(pathToCheck, 3600);
                 data = retry.data;
                 error = retry.error;
