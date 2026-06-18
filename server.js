@@ -237,7 +237,7 @@ app.post('/api/verify-game', async (req, res) => {
         // Lấy ra các cột: id (để làm memory_id), image_url, offset_x, offset_y của đơn này
         const { data: memories, error: memoriesError } = await supabase
             .from('memories')
-            .select('id, image_url, offset_x, offset_y')
+            .select('id, image_url:image_path, offset_x, offset_y')
             .eq('order_id', order_id); // 💡 LƯU Ý: Nếu cột liên kết ở table memories của Tiệm đặt tên khác order_id (ví dụ: order) thì Tiệm đổi chữ 'order_id' màu đỏ bên trái này lại cho khớp nha!
 
         if (memoriesError) {
