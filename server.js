@@ -232,7 +232,7 @@ app.post('/api/verify-game', async (req, res) => {
         }
 
         const { data: rawMemories, error: memoriesError } = await supabase
-            .from('photos')
+            .from('memories')
             .select('id, image_path, offset_x, offset_y')
             .eq('order_id', order_id);
 
