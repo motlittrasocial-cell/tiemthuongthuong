@@ -211,64 +211,71 @@
         // =========================================================================
         // 🔥 ĐÃ SỬA: TỰ ĐỘNG DIỆN KIẾN TỪ CLEAN URL DẠNG /game/MÃ_ĐƠN_HÀNG
         // =========================================================================
+        // =========================================================================
+        // 🎯 ĐÃ SỬA: BỐC MÃ TỪ URL ĐIỀN SẴN, BẮT NHẬP MẬT KHẨU ĐỂ MỞ KHÓA
+        // =========================================================================
         let autoOrderId = "";
         const pathParts = window.location.pathname.split('/');
         const gameIndex = pathParts.indexOf('game');
 
-        // Nếu trên thanh địa chỉ có chữ /game/abc thì bốc lấy "abc" làm mã đơn hàng
+        // Bốc lấy mã đơn hàng từ đường dẫn sạch /game/MÃ_ĐƠN_HÀNG
         if (gameIndex !== -1 && pathParts[gameIndex + 1]) {
             autoOrderId = pathParts[gameIndex + 1].trim();
         }
 
-        // Hàm tự động kích hoạt khi trang vừa tải xong
+        // Khi trang vừa tải xong: Tự điền mã đơn và khóa lại, chỉ chừa ô Mật khẩu cho khách gõ
         window.addEventListener('DOMContentLoaded', () => {
             if (autoOrderId) {
-                // Điền sẵn mã vào ô nhập liệu cho khách thấy chuyên nghiệp
-                document.getElementById('gameOrderId').value = autoOrderId;
+                const orderIdInput = document.getElementById('gameOrderId');
+                const passwordInput = document.getElementById('gamePassword');
                 
-                // Thay đổi giao diện màn hình khóa thành trạng thái "Đang mở khóa..." đầy lãng mạn
-                const unlockScreen = document.getElementById('unlockScreen');
-                unlockScreen.innerHTML = `
-                    <div class="text-center space-y-4 py-8">
-                        <div class="inline-flex text-4xl animate-spin">🌸</div>
-                        <h2 class="text-xl font-bold text-[#724a4f]">Đang nhận diện chìa khóa...</h2>
-                        <p class="text-xs text-slate-400">Tiệm đang chuẩn bị căn phòng kỷ niệm của riêng hai bạn nha!</p>
-                    </div>
-                `;
+                orderIdInput.value = autoOrderId; // Tự động điền mã đơn hàng
+                orderIdInput.readOnly = true;     // Khóa ô này lại không cho sửa nhầm
                 
-                // Tự động gọi API xác thực luôn, không bắt khách bấm gì cả
-                autoVerifyDirectLink(autoOrderId);
+                // Thêm hiệu ứng làm mờ nhẹ ô ID để khách biết ô này đã được kích hoạt tự động
+                orderIdInput.classList.add('bg-slate-100/80', 'text-slate-400', 'cursor-not-allowed'); 
+                
+                // 🔥 Điểm tinh tế: Tự động đưa con trỏ chuột nhảy vào ô Mật khẩu để khách gõ luôn
+                passwordInput.focus();
             }
         });
 
-        // Hàm xác thực không cần mật khẩu dành riêng cho đường link báu vật từ Email
-        async function autoVerifyDirectLink(orderId) {
+        // HÀM XÁC THỰC KHI KHÁCH BẤM NÚT (Dùng chung cho cả 2 luồng)
+        async function verifyAndStartGame() {
+            const orderIdInput = document.getElementById('gameOrderId').value.trim();
+            const passwordInput = document.getElementById('gamePassword').value.trim();
+
+            if (!orderIdInput || !passwordInput) {
+                alert("Bạn vui lòng điền đầy đủ Mật khẩu bảo mật nha!");
+                return;
+            }
+
             try {
                 const response = await fetch(`${API_URL}/api/verify-game`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ order_id: orderId, is_direct_link: true })
+                    body: JSON.stringify({ order_id: orderIdInput, password: passwordInput })
                 });
                 const data = await response.json();
 
                 if (data.success) {
-                    currentOrderId = orderId;
+                    currentOrderId = orderIdInput;
                     nameA = data.name_a;
                     nameB = data.name_b;
                     serverCards = data.cards;
 
                     document.getElementById('countdownClock').innerText = `${data.days_left} ngày`;
                     
+                    // Mở khóa phòng game
                     document.getElementById('unlockScreen').classList.add('hidden');
                     document.getElementById('gameScreen').classList.remove('hidden');
 
                     setupGameBoard();
                 } else {
-                    alert(`🛎️ Thông báo từ Tiệm: ${data.message}\nBạn vui lòng nhập bằng tay mã số và mật khẩu nha!`);
-                    window.location.href = "/game.html"; 
+                    alert(data.message);
                 }
             } catch (error) {
-                console.error("Lỗi kết nối tự động:", error);
+                console.error("Lỗi kết nối:", error);
                 alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng mạng nha!");
             }
         }
