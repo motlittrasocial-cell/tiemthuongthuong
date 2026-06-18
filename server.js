@@ -238,6 +238,9 @@ app.post('/api/verify-game', async (req, res) => {
         // =========================================================================
         // 🔥 TUYỆT CHIÊU: GIỮ DB SẠCH - NỐI LINK ĐỘNG TRÊN BỘ NHỚ TẠM
         // =========================================================================
+        // =========================================================================
+        // 🛡️ BẢO MẬT TỐI THƯỢNG: LINK KÝ TÊN CÓ THỜI HẠN (BUCKET GIỮ PRIVATE)
+        // =========================================================================
         // Bước 1: Bốc dữ liệu gốc sạch sẽ từ database lên trước
         const { data: rawMemories, error: memoriesError } = await supabase
             .from('memories')
@@ -249,18 +252,20 @@ app.post('/api/verify-game', async (req, res) => {
             return res.status(500).json({ success: false, message: "Không thể bốc danh sách ảnh kỷ niệm từ hệ thống!" });
         }
 
-        // Bước 2: Tự động chuyển đổi tên file ngắn thành link URL công khai đầy đủ bằng SDK
-        const memories = rawMemories.map(item => {
-            // 💡 LƯU Ý: Tiệm kiểm tra xem tên cái 'Bucket' lưu ảnh trên Supabase Storage của Tiệm có phải tên là 'memories' không nhé. Nếu tên bucket đặt là 'images' hay chữ khác thì Tiệm đổi chữ 'memories' màu đỏ bên dưới lại nha!
-            const { data } = supabase.storage.from('memories').getPublicUrl(item.image_path);
+        // Bước 2: Ép hệ thống đẻ ra đường Link Ký Tên (Signed URL) chỉ có thời hạn dùng trong 1 tiếng (3600 giây)
+        // Vì hàm sinh link này chạy bất đồng bộ (async/await) nên tụi mình dùng Promise.all để xử lý hàng loạt cực nhanh
+        const memories = await Promise.all(rawMemories.map(async (item) => {
+            const { data, error } = await supabase.storage
+                .from('memories') // Tên bucket chứa ảnh của Tiệm
+                .createSignedUrl(item.image_path, 3600); // 3600 giây = 1 giờ
             
             return {
                 id: item.id,
-                image_url: data.publicUrl, // Hàm tự đẻ ra link https://... full không góc chết gửi về cho game
+                image_url: data ? data.signedUrl : '', // Link độc quyền có chứa mã token bảo mật tự hủy
                 offset_x: item.offset_x,
                 offset_y: item.offset_y
             };
-        });
+        }));
 
         // 4. Tính toán số ngày còn lại (Mặc định gói 30 ngày)
         const activeDate = new Date(order.updated_at || order.created_at);
