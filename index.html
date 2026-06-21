@@ -96,10 +96,7 @@
             <div
                 class="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-rose-100 text-center space-y-4">
                 <h2 class="text-xl font-bold text-slate-800">Trò chơi "Tấm Ảnh Còn Lại" là gì?</h2>
-                <p class="text-sm text-slate-600 leading-relaxed text-justify">Đây là một không gian bí mật dành riêng
-                    cho hai bạn. Bạn (Người A) sẽ tải lên từ 5 đến 10 bức ảnh lưu giữ khoảnh khắc ngọt ngào nhất, kèm
-                    theo những lời nhắn gửi ẩn giấu. Hệ thống sẽ biến chúng thành một trò chơi lật hình lãng mạn phong
-                    cách ảnh Polaroid hoài niệm.</p>
+                <p class="text-sm text-slate-600 leading-relaxed text-justify">Mỗi bức ảnh đều cất giữ một câu chuyện, một khoảnh khắc khiến trái tim rung động theo một cách riêng. Tấm Ảnh Còn Lại không chỉ là một trò chơi ghép hình quen thuộc, mà còn là nơi những kỷ niệm được kể lại bằng sự bất ngờ và niềm vui. Hãy biến những khoảnh khắc bên nhau thành những mảnh ghép nhỏ xinh, để người thương của bạn khám phá từng ký ức, từng lời nhắn yêu thương theo cách thật đặc biệt. Bởi đôi khi, hạnh phúc đơn giản chỉ là được cùng nhau nhớ lại những điều đẹp đẽ đã đi qua. </p>
                 <button onclick="switchTab('order-tab')"
                     class="bg-rose-500 text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:bg-rose-600 transition cursor-pointer text-sm">Bắt
                     đầu tạo bất ngờ ngay 🚀</button>
@@ -119,27 +116,27 @@
                         <label class="block text-sm font-semibold mb-2 text-slate-600">Email của bạn (Người gửi)</label>
                         <input type="email" id="emailA" required
                             class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50"
-                            placeholder="Để nhận link quản lý và biên nhận...">
+                            placeholder="Tiệm sẽ gửi thông tin đơn hàng qua email đến bạn...">
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold mb-2 text-slate-600">Số điện thoại của bạn</label>
                         <input type="tel" id="phoneA" required
                             class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50"
-                            placeholder="Để liên lạc khi có sự cố đơn hàng (10 số)...">
+                            placeholder="Số điện thoại của bạn...">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold mb-2 text-slate-600">Tên/Biệt danh của bạn
-                                (A)</label>
+                                </label>
                             <input type="text" id="nameA" required
                                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50 text-sm font-medium"
                                 placeholder="Ví dụ: Duy Anh">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold mb-2 text-slate-600">Tên/Biệt danh người ấy
-                                (B)</label>
+                                </label>
                             <input type="text" id="nameB" required
                                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50 text-sm font-medium"
                                 placeholder="Ví dụ: Hà Chi">
@@ -175,7 +172,7 @@
                                     <span class="font-black text-xl text-slate-800 mt-1">39,000đ</span>
                                     <div class="w-8 h-px bg-rose-200/50 my-2"></div>
                                     <span class="text-[10px] text-[#9e8386] text-center font-semibold leading-relaxed">
-                                        Đăng 5 - 6 tấm ảnh<br>Lưu giữ trong 1 tuần
+                                        Lưu từ 5 - 6 tấm ảnh kỷ niệm<br>Thoải mái khám phá trong 7 ngày
                                     </span>
                                 </label>
 
@@ -189,12 +186,12 @@
                                     <span class="font-black text-xl text-slate-800 mt-1">59,000đ</span>
                                     <div class="w-8 h-px bg-rose-200/50 my-2"></div>
                                     <span class="text-[10px] text-[#9e8386] text-center font-semibold leading-relaxed">
-                                        Đăng 5 - 10 tấm ảnh<br>Lưu giữ trong 2 tuần
+                                        Lưu từ 5 - 10 tấm ảnh kỷ niệm<br>Thoải mái khám phá trong 14 ngày
                                     </span>
                                 </label>
 
                             </div>
-                            <p id="photoLimitNotice" class="text-[10px] text-slate-400 italic mt-2.5 text-center">Gói
+                            <p id="photoLimitNotice" class="text-[12px] text-slate-400 italic mt-2.5 text-center">Gói
                                 hiện tại yêu cầu tải lên từ 5 đến 6 tấm ảnh.</p>
                         </div>
 
@@ -251,17 +248,14 @@
                             <div
                                 class="flex-1 overflow-y-auto my-4 pr-1 text-xs text-slate-600 leading-relaxed space-y-4 custom-scroll text-justify">
                                 <div>
-                                    <h4 class="font-bold text-[#7a5255] mb-1">1. Quyền riêng tư & Cơ chế tự hủy ảnh (Bảo
-                                        mật 100%)</h4>
-                                    <p>Hình ảnh và lời nhắn của bạn chỉ dùng để hiển thị trong link game của riêng hai
-                                        bạn. Tiệm tuyệt đối không chia sẻ, không sử dụng cho bất kỳ mục đích nào khác.
+                                    <h4 class="font-bold text-[#7a5255] mb-1">1. Quyền riêng tư & Cơ chế tự hủy ảnh</h4>
+                                    <p>Khi tải hình ảnh và lời nhắn lên hệ thống, bạn xác nhận mình có quyền sử dụng các nội dung đó và đồng ý cho Tiệm sử dụng chúng với mục đích duy nhất là tạo, lưu trữ và hiển thị trò chơi theo yêu cầu của bạn. Tiệm không sử dụng, sao chép, phát hành hoặc khai thác hình ảnh, lời nhắn của bạn cho bất kỳ mục đích thương mại, quảng cáo hay chia sẻ với bên thứ ba nào khác.
                                     </p>
                                     <p class="mt-1">Hệ thống sẽ tự động quét và xóa sạch vĩnh viễn toàn bộ hình ảnh, lời
                                         nhắn trên máy chủ ngay khi gói dịch vụ hết hạn (sau 7 ngày hoặc 14 ngày tùy gói
                                         bạn chọn).</p>
                                     <p class="italic text-rose-600 font-medium mt-1">Lưu ý: Sau khi hệ thống đã xóa, dữ
-                                        liệu sẽ không thể khôi phục dưới mọi hình thức. Bạn vui lòng tự lưu trữ ảnh gốc
-                                        on thiết bị của mình nhé.</p>
+                                        liệu sẽ không thể khôi phục dưới mọi hình thức.</p>
                                 </div>
 
                                 <div>
@@ -275,12 +269,8 @@
 
                                 <div>
                                     <h4 class="font-bold text-[#7a5255] mb-1">3. Chính sách thanh toán & Hoàn tiền</h4>
-                                    <p>Vì đây là sản phẩm công nghệ có hiệu lực ngay sau khi bạn kích hoạt link, Tiệm
-                                        không hỗ trợ hoàn tiền với các lý do cá nhân (ví dụ: đổi ý không chơi nữa, giận
-                                        nhau với người yêu...).</p>
-                                    <p class="mt-1">Trong trường hợp link game gặp lỗi kỹ thuật từ phía hệ thống, Tiệm
-                                        sẽ tiến hành sửa lỗi ngay hoặc đền bù bằng cách gia hạn thêm ngày sử dụng tương
-                                        ứng.</p>
+                                    <p>Vì đây là sản phẩm số được tạo và kích hoạt ngay sau khi Tiệm xác nhận thanh toán thành công, Tiệm không hỗ trợ hoàn tiền sau khi đơn hàng đã được thanh toán.</p>
+                                    <p class="mt-1">Trong trường hợp phát sinh lỗi kỹ thuật từ phía hệ thống khiến trò chơi không thể hoạt động đúng như mô tả, Tiệm sẽ ưu tiên khắc phục trong thời gian sớm nhất. Nếu lỗi ảnh hưởng đến trải nghiệm sử dụng, Tiệm có thể gia hạn thời gian sử dụng hoặc đưa ra phương án hỗ trợ phù hợp tùy từng trường hợp.</p>
                                 </div>
 
                                 <div>
@@ -326,7 +316,7 @@
                             trái/phải bằng cách bấm vào nút <b>Chỉnh góc ảnh</b> xuất hiện ngay bên dưới tấm hình sau
                             khi chọn để căn chỉnh bố cục ưng ý nhất!</p>
                         <p>• <b>Cảm xúc truyền tải:</b> Nên chọn những bức ảnh rõ mặt, tươi sáng hoặc những khoảnh khắc
-                            tinh nghịch đáng yêu để tạo bất ngờ lớn nhất cho nửa kia khi lật hình nhé.</p>
+                            tinh nghịch đáng yêu để tạo bất ngờ cho nửa kia khi lật hình nhé.</p>
                     </div>
 
                     <div>
@@ -389,7 +379,7 @@
                 </div>
                 <div class="space-y-4">
                     <input type="text" id="playOrderId"
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-center font-mono"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-center"
                         placeholder="Nhập Mã số quà tặng...">
                     <input type="password" id="playPassword"
                         class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-center"
@@ -450,7 +440,7 @@
 
     <!-- SCRIPT ĐIỀU HÀNH KẾT NỐI API THỰC TẾ -->
     <script>
-        const BANK_CONFIG = { bankId: "MB", accountNo: "0999999999", accountName: "NGUYEN VAN A" };
+        const BANK_CONFIG = { bankId: "TP BANK", accountNo: "00006366431", accountName: "VO NGOC THAO" };
         let selectedFiles = [];
         let currentEditIndex = null;
 
@@ -513,7 +503,7 @@
                         <input type="text" required value="${currentText}" 
                             oninput="selectedFiles[${index}].savedMessage = this.value" 
                             class="msg-input w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-rose-400 bg-white/50" 
-                            placeholder="Viết lời nhắn hoặc thư tình ẩn giấu...">
+                            placeholder="Lời nhắn của bạn...">
                     </div>
                     <button type="button" onclick="removeImage(${index})" class="text-xs text-slate-400 hover:text-rose-500 font-bold p-1 cursor-pointer">Xóa</button>
                 </div>
@@ -572,10 +562,10 @@
 
             // Ràng buộc ảnh nghiêm ngặt theo gói chốt
             if (packageType === '1_week' && (selectedFiles.length < 5 || selectedFiles.length > 6)) {
-                return alert("Gói 7 Ngày Ngọt Ngào yêu cầu đăng từ 5 đến 6 tấm ảnh thôi bạn nha!");
+                return alert("Gói 7 Ngày Ngọt Ngào có thể đăng từ 5 đến 6 tấm ảnh thôi bạn nha!");
             }
             if (packageType === '2_weeks' && (selectedFiles.length < 5 || selectedFiles.length > 10)) {
-                return alert("Gói 14 Ngày Gắn Kết yêu cầu đăng từ 5 đến 10 tấm ảnh bạn nha!");
+                return alert("Gói 14 Ngày Gắn Kết có thể đăng từ 5 đến 10 tấm ảnh bạn nha!");
             }
 
             const submitBtn = document.getElementById('submitBtn');
@@ -635,13 +625,13 @@
         });
 
         function completeOrder() {
-            if (!document.getElementById('policyCheck').checked) { alert("Vui lòng tích chọn xác nhận!"); return; }
+            if (!document.getElementById('policyCheck').checked) { alert("Bạn vui lòng đọc kĩ chính sách và nhấn xác nhận nhé!"); return; }
             document.getElementById('paymentArea').innerHTML = `<div class="py-8 text-center space-y-3"><div class="text-4xl">💌</div><h3 class="text-lg font-bold text-rose-600">Hộp quà đang được niêm phong!</h3><p class="text-xs text-slate-500">Hệ thống đã ghi nhớ trọn vẹn góc ảnh phối 2 trục và lời nhắn của bạn.</p></div>`;
         }
 
         function goToGame() {
             const orderId = document.getElementById('playOrderId').value.trim();
-            if (!orderId) return alert('Vui lòng nhập Mã đơn hàng!');
+            if (!orderId) return alert('Bạn vui lòng nhập Mã đơn hàng nhé!');
             window.location.href = `game.html?id=${orderId}`;
         }
 
