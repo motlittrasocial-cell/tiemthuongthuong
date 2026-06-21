@@ -118,6 +118,7 @@
                     <input type="password" id="gamePassword"
                         class="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-300 bg-white/60 text-center font-bold tracking-widest text-base"
                         placeholder="••••••••">
+                    <p class="text-xs text-slate-400">💡 Lưu ý: Bạn có thể tìm lại hai thông tin này trong email xác nhận kèm link trò chơi mà người gửi đã nhận được nhé.</p>
                 </div>
                 <button onclick="verifyAndStartGame()"
                     class="w-full bg-gradient-to-r from-[#eaa4a9] via-[#e3969d] to-[#d68fa8] text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:opacity-95 transition duration-300 cursor-pointer text-center tracking-wide">
@@ -170,7 +171,7 @@
                 class="bg-white p-3 pb-10 rounded-lg shadow-xl border border-slate-100 max-w-[240px] mx-auto transform -rotate-2 hover:rotate-0 transition duration-300 relative">
                 <img id="modalImage" src="" class="w-full h-48 object-cover rounded-md shadow-inner">
                 <div id="modalCardLabel"
-                    class="absolute bottom-2 left-0 right-0 text-[10px] font-bold text-slate-300 tracking-widest uppercase">
+                    class="absolute bottom-2 left-0 right-0 text-[10px] font-bold text-rose-500 tracking-widest font-sans uppercase">
                     <!-- Tên cặp đôi đổ vào đây -->
                 </div>
             </div>
@@ -179,7 +180,7 @@
                 class="space-y-1.5 bg-[#fdf8f8] p-5 rounded-2xl border border-rose-100/30 shadow-inner relative text-left">
                 <div class="max-h-[120px] overflow-y-auto pr-1 custom-scroll">
                     <p id="modalMessage"
-                        class="text-2xl text-[#7a5255] font-handwrite leading-relaxed text-justify px-1 min-h-[50px]">
+                        class="text-2xl text-[#7a5255] font-['Times_New_Roman'] italic leading-relaxed text-justify px-1 min-h-[50px]">
                         <!-- Lời thư tay đổ vào đây -->
                     </p>
                 </div>
@@ -276,7 +277,7 @@
                 }
             } catch (error) {
                 console.error("Lỗi kết nối:", error);
-                alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng mạng nha!");
+                alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng nha!");
             }
         }
 
@@ -286,7 +287,7 @@
             const passwordInput = document.getElementById('gamePassword').value.trim();
 
             if (!orderIdInput || !passwordInput) {
-                alert("Bạn vui lòng điền đầy đủ Mã quà tặng và Mật khẩu nha!");
+                alert("Bạn vui lòng điền đầy đủ Mã số quà tặng và Mật khẩu bảo mật nha!");
                 return;
             }
 
@@ -314,7 +315,7 @@
                 }
             } catch (error) {
                 console.error("Lỗi kết nối:", error);
-                alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng mạng nha!");
+                alert("Không thể kết nối tới Tiệm Thương Thương, bạn kiểm tra lại mạng nha!");
             }
         }
 
@@ -345,7 +346,7 @@
                                     ${nameB} & ${nameA}
                                 </div>
                                 <div class="text-[7px] text-[#9e6b70] font-semibold bg-white/40 border border-[#9e6b70]/10 rounded-full px-2.5 py-0.5 mt-3 backdrop-blur-xs select-none uppercase tracking-wider">
-                                    Mở hộp quà 🗝
+                                    Lật ảnh 🗝
                                 </div>
                             </div>
                             
@@ -405,7 +406,7 @@
                         }, 500);
                     }
                 } catch (error) {
-                    console.error("Lỗi lấy thư tình:", error);
+                    console.error("Lỗi lấy lời nhắn:", error);
                 }
 
                 flippedCards = [];
