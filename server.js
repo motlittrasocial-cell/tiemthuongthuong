@@ -39,7 +39,7 @@ async function sendActivationEmail(order, packageName) {
             <div style="background-color: #fdf1f2; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #be7a81;">
                 <p style="margin: 5px 0;">📦 <b>Gói dịch vụ:</b> ${packageName}</p>
                 <p style="margin: 5px 0;">🔑 <b>Mã Số Quà Tặng:</b> <code style="font-size: 14px; background: #fff; padding: 2px 6px; border-radius: 4px;">${order.id}</code></p>
-                <p style="margin: 5px 0;">🔒 <b>Mật Khẩu Mở Khóa (Nếu vào từ Trang Chủ):</b> <code>${order.password_b}</code></p>
+                <p style="margin: 5px 0;">🔒 <b>Mật Khẩu Mở Khóa:</b> <code>${order.password_b}</code></p>
             </div>
 
             <p style="margin-bottom: 5px; font-weight: bold; color: #7a5255; font-size: 13px;">🔗 Đường link trang chơi game riêng của hai bạn:</p>
@@ -51,7 +51,7 @@ async function sendActivationEmail(order, packageName) {
             
             <div style="background-color: #fff9e6; border: 1px solid #ffeaa7; padding: 10px; border-radius: 8px; margin-bottom: 25px;">
                 <p style="margin: 0; font-size: 12px; color: #b77c1e; line-height: 1.5; text-align: justify;">
-                    ⚠️ <b>Lời nhắc bảo mật từ Tiệm:</b> Đường dẫn phía trên là chiếc chìa khóa duy nhất mở khóa kho tàng thanh xuân của hai bạn. Bạn hãy copy toàn bộ đường link này để gửi tặng người ấy nhé. Vui lòng tự lưu giữ bảo mật, không chia sẻ công khai lên mạng xã hội để bảo vệ vẹn nguyên những kỷ niệm cá nhân thiêng liêng này nha!
+                    ⚠️ <b>Lời nhắc bảo mật từ Tiệm:</b> Đường dẫn phía trên là chiếc chìa khóa duy nhất mở khóa không gian bí mật của hai bạn. Bạn hãy copy toàn bộ đường link này, kèm mật khẩu bảo mật để gửi người ấy nhé. Bạn hãy tự lưu giữ đường link và cân nhắc khi chia sẻ để đảm bảo trải nghiệm tốt nhất, cũng như bảo vệ vẹn nguyên những kỷ niệm cá nhân này nha!
                 </p>
             </div>
 
@@ -59,7 +59,7 @@ async function sendActivationEmail(order, packageName) {
                 * <b>Cách dùng:</b> Người ấy khi truy cập vào đường link riêng phía trên sẽ thấy Mã số quà tặng đã được hệ thống tự động điền sẵn và niêm phong. Người ấy chỉ cần gõ đúng chính xác <b>Mật Khẩu Bảo Mật</b> ở phía trên là căn phòng kỷ niệm sẽ lập tức mở ra!
             </p>
             <hr style="border: none; border-top: 1px dashed #f0d5d7; margin: 20px 0;">
-            <p style="text-align: center; font-size: 12px; color: #bda2a5;">Cảm ơn bạn đã lựa chọn cất giữ thanh xuân tại Tiệm Thương Thương...</p>
+            <p style="text-align: center; font-size: 12px; color: #bda2a5;">Cảm ơn bạn đã lựa chọn cất giữ kỉ niệm tại Tiệm Thương Thương...</p>
         </div>
     `;
 
