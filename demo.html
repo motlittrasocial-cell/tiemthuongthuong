@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trải Nghiệm Thử Hộp Quà Kỷ Niệm - Tiệm Thương Thương</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Nhập cả 3 font chữ cần thiết cho hệ thống */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght=0,300;0,400;0,600;1,400&family=Comfortaa:wght@400;700&family=Dancing+Script:wght=700&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap');
+
+        /* 📋 MẶC ĐỊNH TOÀN TRANG GAME DÙNG FONT BE VIETNAM PRO Y CHANG GAME.HTML */
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        /* 🌸 ÉP RIÊNG MÀN HÌNH FORM CẤU HÌNH DÙNG FONT COMFORTAA NHƯ TIỆM YÊU CẦU */
+        #setupArea, #setupArea * {
+            font-family: 'Comfortaa', cursive !important;
+        }
+
+        .font-handwrite {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .card-perspective {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+        }
+
+        @keyframes floatBg {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
+            50% { transform: translateY(-20px) rotate(10deg); opacity: 0.4; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
+        }
+
+        .floating-heart {
+            animation: floatBg 6s ease-in-out infinite;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #eab3b6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-[#fff2f4] via-[#fdf5f2] to-[#f6eff4] min-h-screen text-slate-700 relative overflow-x-hidden p-3 flex flex-col justify-between">
+
+    <!-- Thành tố trang trí bay bổng ngầm chuẩn game.html -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <div class="absolute top-12 left-10 text-4xl text-rose-200/40 floating-heart">🌸</div>
+        <div class="absolute top-1/4 right-12 text-3xl text-pink-200/30 floating-heart" style="animation-delay: 2s;">✨</div>
+    </div>
+
+    <div class="max-w-4xl w-full mx-auto relative z-10">
+
+        <!-- ========================================================================= -->
+        <!-- MÀN HÌNH 1: FORM ĐIỀN THÔNG TIN & UPLOAD (GIỮ NGUYÊN FONT COMFORTAA) -->
+        <!-- ========================================================================= -->
+        <div id="setupArea" class="max-w-md w-full mx-auto bg-white/80 backdrop-blur-xl p-5 rounded-3xl shadow-2xl border border-white/40 space-y-4 mt-2">
+            <div class="text-center space-y-1">
+                <h2 class="text-xl font-bold text-[#724a4f] tracking-tight">🌸 Khu Vườn Thử Nghiệm</h2>
+                <p class="text-[11px] text-slate-400">Tự thiết kế nhanh một bản chơi thử để xem trước giao diện</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 bg-rose-50/20 p-3 rounded-2xl border border-rose-100/40">
+                <div>
+                    <label class="block text-[10px] font-bold mb-1 text-slate-500">Tên bạn (Nam):</label>
+                    <input type="text" id="nameA" placeholder="Ví dụ: Hoàng" class="w-full p-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-rose-300 bg-white/80">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold mb-1 text-slate-500">Tên người thương (Nữ):</label>
+                    <input type="text" id="nameB" placeholder="Ví dụ: Thương" class="w-full p-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-rose-300 bg-white/80">
+                </div>
+            </div>
+
+            <!-- Khung upload bắt buộc đúng 4 ảnh -->
+            <div class="relative border-2 border-dashed border-rose-200 rounded-2xl p-5 text-center bg-white/40 hover:bg-rose-50/10 transition cursor-pointer shadow-inner" onclick="document.getElementById('photoFiles').click()">
+                <input type="file" id="photoFiles" accept="image/*" multiple class="hidden" onchange="handleFileSelect(this)">
+                <div class="space-y-1">
+                    <div class="text-xs font-bold text-rose-500 flex items-center justify-center gap-1.5">
+                        📸 Bấm vào đây để chọn ảnh kỷ niệm (Đủ 4 tấm)
+                    </div>
+                    <div id="uploadCounter" class="text-[10px] text-slate-400 font-bold">Chưa chọn tấm ảnh nào</div>
+                </div>
+            </div>
+
+            <!-- Danh sách cuộn chứa hàng ảnh điền lời nhắn -->
+            <div id="imageListContainer" class="hidden max-h-[220px] overflow-y-auto space-y-2.5 pr-1 custom-scroll">
+                <!-- Hàng ảnh sinh tự động từ JavaScript -->
+            </div>
+
+            <button onclick="buildDemoGame()" class="w-full bg-gradient-to-r from-[#eaa4a9] via-[#e3969d] to-[#d68fa8] text-white font-bold py-3 px-4 rounded-xl shadow-md hover:opacity-95 transition duration-300 tracking-wide text-xs cursor-pointer">
+                ✨ Khởi Tạo Giao Diện Bản Thật
+            </button>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- MÀN HÌNH 2: BÀN CHƠI GAME LẬT BÀI (Y CHANG 100% GAME.HTML GỐC) -->
+        <!-- ========================================================================= -->
+        <div id="gameScreen" class="hidden space-y-4">
+            <div class="flex justify-between items-center bg-white/50 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/50 shadow-sm">
+                <div>
+                    <h1 class="text-2xl font-bold text-[#9e6b70]">📸 Tấm Ảnh Còn Lại</h1>
+                    <p class="text-[11px] text-slate-400 font-medium">Tìm các cặp ảnh Polaroid giống nhau để đọc lời nhắn</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs bg-[#fdf0f2] text-[#9e6b70] font-bold px-4 py-2 rounded-full shadow-inner border border-white/40">
+                        🧩 Tiến độ: <span id="progressLabel">0/4</span> cặp
+                    </span>
+                </div>
+            </div>
+
+            <!-- Đồng hồ thời gian bảo mật -->
+            <div class="bg-amber-50/60 backdrop-blur-sm border border-amber-100 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-amber-800 shadow-inner">
+                <div class="flex items-center gap-1.5 font-medium"><span>⏱️</span><span>Link kỷ niệm chơi thử này sẽ tự hủy sau:</span></div>
+                <div id="countdownClock" class="font-mono font-bold bg-amber-600 text-white px-3 py-1 rounded-md shadow-sm tracking-wide">
+                    30 ngày
+                </div>
+            </div>
+
+            <!-- Lưới chứa bài lật chuẩn xác y chang phom dáng game.html -->
+            <div id="cardGrid" class="flex flex-wrap justify-center gap-4 card-perspective pt-2"></div>
+        </div>
+
+    </div>
+
+    <!-- ĐƯỜNG DẪN LINK ĐẶT HÀNG GỐC Ở CHÂN TRANG -->
+    <div class="w-full max-w-sm mx-auto text-center mt-6 p-3 bg-white/40 backdrop-blur-md rounded-xl border border-white/50 shadow-sm relative z-10">
+        <a href="/index.html" class="inline-block text-[11px] font-bold text-rose-600 hover:text-rose-700 underline underline-offset-4 tracking-wider uppercase">
+            👉 Quay về trang chủ đặt hàng dịch vụ ngay 🌸
+        </a>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- POPUP 1: LỜI NHẮN CHI TIẾT KHI TRÚNG CẶP (Y CHANG 100% GAME.HTML GỐC) -->
+    <!-- ========================================================================= -->
+    <div id="messageModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 hidden z-50 transition-all duration-300">
+        <div class="bg-white/90 backdrop-blur-xl p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-white space-y-5 text-center transform scale-95 transition-all duration-300 relative overflow-hidden">
+
+            <!-- Tấm ảnh Polaroid to bản trong popup -->
+            <div class="bg-white p-3 pb-10 rounded-lg shadow-xl border border-slate-100 max-w-[240px] mx-auto transform -rotate-2 hover:rotate-0 transition duration-300 relative">
+                <img id="modalImage" src="" class="w-full h-48 object-cover rounded-md shadow-inner">
+                <div id="modalCardLabel" class="absolute bottom-2 left-0 right-0 text-[10px] font-bold text-rose-500 tracking-widest font-sans uppercase"></div>
+            </div>
+
+            <!-- Khung lời nhắn viết chữ Times New Roman nghiêng thơ mộng -->
+            <div class="space-y-1.5 bg-[#fdf8f8] p-5 rounded-2xl border border-rose-100/30 shadow-inner relative text-left">
+                <!-- Khóa cứng không có cuộn trượt, lời nhắn vừa vặn 1-2 dòng -->
+                <div class="overflow-hidden">
+                    <p id="modalMessage" class="text-xl text-[#7a5255] font-['Times_New_Roman'] italic leading-relaxed text-center px-1 break-words"></p>
+                </div>
+            </div>
+
+            <button onclick="closeModal()" class="w-full bg-[#7a5255] text-white font-bold py-2.5 rounded-xl text-sm shadow-md hover:bg-[#694447] transition cursor-pointer">
+                Tiếp tục lật ảnh ➜
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- POPUP 2: MÀN HÌNH VINH DANH SỬA ĐỔI HOÀN HẢO THEO IMAGE_093DF9.PNG -->
+    <!-- ========================================================================= -->
+    <div id="victoryModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-4 hidden z-50 transition-all duration-300">
+        <div class="bg-white/95 p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-white text-center space-y-4 transform scale-95 transition-all duration-300">
+            <div class="text-4xl">🎉</div>
+            <!-- 🔥 ĐÃ SỬA: Chỉ hiển thị "Chúc mừng bạn!" theo yêu cầu -->
+            <h3 class="text-lg font-bold text-[#724a4f]">Chúc mừng bạn!</h3>
+            <!-- 🔥 ĐÃ SỬA: Nội dung tinh chỉnh gọn gàng kết thúc bằng "mảnh ghép kỷ niệm rồi nhé!" -->
+            <p class="text-xs text-slate-500 leading-relaxed">Bạn đã lật mở thành công toàn bộ các mảnh ghép kỷ niệm rồi nhé!</p>
+            
+            <!-- Hộp liệt kê đặc quyền bản thật nâng cấp theo đúng image_0936bc.png -->
+            <div class="bg-gradient-to-br from-rose-50/60 to-amber-50/60 p-4 rounded-2xl border border-rose-100/40 text-left space-y-2.5 text-xs">
+                <div class="font-bold text-rose-600 text-center pb-1.5 border-b border-rose-100/50 uppercase tracking-wide text-[10px]">✨ Đặc quyền khi tạo trò chơi chính thức:</div>
+                <div class="flex items-start gap-2 text-slate-600"><span>📸</span><span><b>Tải lên tối đa 10 ảnh</b> (Gói hành trình gắn kết) tha hồ lưu giữ trọn vẹn câu chuyện.</span></div>
+                <div class="flex items-start gap-2 text-slate-600"><span>✍️</span><span><b>Lời nhắn viết dài vô tận</b>, không bị giới hạn ký tự dòng chữ ngắn.</span></div>
+                <!-- 🔥 ĐÃ SỬA: Cập nhật chuẩn xác theo thời hạn gói 7 ngày hoặc 14 ngày của Tiệm -->
+                <div class="flex items-start gap-2 text-slate-600"><span>⏳</span><span><b>Thời gian trải nghiệm linh hoạt</b> lên tới 7 ngày hoặc 14 ngày tùy chọn.</span></div>
+                <!-- 🔥 ĐÃ SỬA: Chỉ giữ lại tính năng căn chỉnh góc ảnh -->
+                <div class="flex items-start gap-2 text-slate-600"><span>🛠️</span><span><b>Căn chỉnh góc ảnh</b> chuẩn chỉnh từng khoảnh khắc kỷ niệm đẹp nhất.</span></div>
+            </div>
+
+            <!-- Nút hành động mượt mà hướng tới tạo trò chơi gửi người yêu -->
+            <div class="space-y-2 pt-1">
+                <!-- 🔥 ĐÃ SỬA: Thay đổi text kêu gọi mượt mà hơn, hướng đến người yêu -->
+                <a href="/index.html" class="block w-full bg-gradient-to-r from-[#eaa4a9] via-[#e3969d] to-[#d68fa8] text-white font-bold py-3 rounded-xl text-xs shadow-md shadow-rose-100 hover:opacity-95 transition tracking-wide uppercase text-center no-underline">
+                    ✨ Thiết kế trò chơi gửi người yêu ngay
+                </a>
+                <!-- 🔥 ĐÃ SỬA: Thay đổi chữ "bàn cờ" thành "các tấm ảnh" như Tiệm căn dặn -->
+                <button onclick="closeVictoryModal()" class="text-[10px] text-slate-400 hover:text-slate-600 font-bold underline cursor-pointer bg-transparent border-0 outline-none w-full text-center">
+                    Xem lại các tấm ảnh vừa lật
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SCRIPT ĐIỀU KHIỂN HỆ THỐNG LOGIC DEMO CỤC BỘ -->
+    <!-- ========================================================================= -->
+    <script>
+        let demoMemories = []; 
+        let gameCards = [];    
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let nameA = "Người Gửi";
+        let nameB = "Người Nhận";
+
+        // 1. CHẶN ĐÚNG 4 ẢNH VÀ IN RA GIAO DIỆN PHÒNG INPUT (FONT COMFORTAA)
+        function handleFileSelect(input) {
+            if (!input.files || input.files.length === 0) return;
+            
+            if (input.files.length !== 4) {
+                alert("Tiệm chỉ hỗ trợ trải nghiệm thử với đúng 4 tấm ảnh thôi nè. Bạn chọn lại chính xác 4 tấm giúp Tiệm nha! 🥰");
+                input.value = ""; 
+                document.getElementById('uploadCounter').innerText = "Chưa chọn tấm ảnh nào";
+                document.getElementById('imageListContainer').classList.add('hidden');
+                return;
+            }
+
+            const container = document.getElementById('imageListContainer');
+            container.innerHTML = "";
+            demoMemories = [];
+
+            document.getElementById('uploadCounter').innerText = `Đã chọn thành công: 4 tấm ảnh`;
+            container.classList.remove('hidden');
+
+            Array.from(input.files).forEach((file, index) => {
+                const orderIndex = index + 1;
+                const localUrl = URL.createObjectURL(file);
+
+                demoMemories.push({
+                    id: index,
+                    url: localUrl,
+                    input_id: `msg_input_${index}`
+                });
+
+                const row = document.createElement('div');
+                row.className = "p-2.5 rounded-xl border border-rose-100/60 bg-white/90 shadow-sm flex items-center justify-between gap-3 relative";
+                row.innerHTML = `
+                    <div class="w-12 h-12 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0">
+                        <img src="${localUrl}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <span class="text-[9px] font-bold text-rose-400 uppercase tracking-wider block">ẢNH KỶ NIỆM ${orderIndex}</span>
+                        <!-- Khóa cứng 60 ký tự để lời nhắn hiển thị 1-2 dòng vừa khít không bị cuộn -->
+                        <input type="text" id="msg_input_${index}" maxlength="60" placeholder="Lời nhắn ngắn (Tối đa 2 dòng)..." class="w-full mt-1 p-1.5 text-xs border border-slate-100 bg-slate-50/50 rounded-lg focus:outline-none focus:border-rose-300 focus:bg-white transition">
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // 2. KHỞI TẠO BÀN CHƠI CHUẨN 100% KÍCH THƯỚC VÀ PHÒNG CÁCH FILE GAME.HTML THẬT
+        function buildDemoGame() {
+            nameA = document.getElementById('nameA').value.trim() || "Người Gửi";
+            nameB = document.getElementById('nameB').value.trim() || "Người Nhận";
+
+            if (demoMemories.length !== 4) {
+                alert("Bạn vui lòng chọn đủ 4 tấm ảnh ở khung phía trên trước nha!");
+                return;
+            }
+
+            document.getElementById('progressLabel').innerText = `0/4`;
+            matchedPairs = 0;
+            flippedCards = [];
+
+            let localCardsData = [];
+            demoMemories.forEach((item, index) => {
+                const inputEl = document.getElementById(item.input_id);
+                const customMsg = inputEl ? inputEl.value.trim() : "";
+                localCardsData.push({
+                    id: index,
+                    image_url: item.url,
+                    message: customMsg || "Đằng ấy còn nhớ hình này chụp khi nào hong 🌸"
+                });
+            });
+
+            // Nhân đôi bài và trộn ngẫu nhiên y chang hàm gốc
+            gameCards = [...localCardsData, ...localCardsData].sort(() => Math.random() - 0.5);
+
+            document.getElementById('setupArea').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+
+            const grid = document.getElementById('cardGrid');
+            grid.innerHTML = "";
+
+            // Đổ cấu trúc thẻ bài chuẩn kích thước w-[130px] sm:w-[150px] h-48 y đúc bản thật game.html
+            gameCards.forEach((card, index) => {
+                const cardHtml = `
+                    <div class="card w-[130px] sm:w-[150px] h-48 cursor-pointer relative rounded-2xl shadow-sm transition duration-300 hover:-translate-y-1.5 hover:shadow-lg" data-id="${card.id}" data-msg="${card.message}" data-url="${card.image_url}" onclick="flipCard(this)">
+                        <div class="card-inner w-full h-full relative rounded-2xl">
+                            
+                            <!-- MẶT SAU THỂ BÀI (MẢNH MAI TỐI GIẢN CHUẨN GỐC) -->
+                            <div class="card-back bg-gradient-to-br from-[#FFF0F2] to-[#F3D1D4] rounded-2xl flex flex-col items-center justify-center text-[#9e6b70] border-2 border-white/80 shadow-sm relative overflow-hidden">
+                                <div class="absolute inset-2 border border-[#9e6b70]/15 border-dashed rounded-xl pointer-events-none"></div>
+                                <div class="text-2xl opacity-60 tracking-widest text-[#9e6b70] font-light select-none animate-pulse">✧ ✦ ✧</div>
+                                <div class="text-[9px] font-bold tracking-[0.2em] text-[#8a5c61] uppercase mt-3.5 max-w-[110px] truncate text-center px-1">
+                                    ${nameB} & ${nameA}
+                                </div>
+                                <div class="text-[7px] text-[#9e6b70] font-semibold bg-white/40 border border-[#9e6b70]/10 rounded-full px-2.5 py-0.5 mt-3 backdrop-blur-xs select-none uppercase tracking-wider">
+                                    Lật ảnh 🗝
+                                </div>
+                            </div>
+                            
+                            <!-- MẶT TRƯỚC THỂ BÀI POLAROID CHUẨN KÍCH THƯỚC GỐC -->
+                            <div class="card-front bg-white p-2 pb-6 rounded-2xl flex flex-col justify-between h-full border border-slate-100 shadow-xl">
+                                <div class="w-full h-36 bg-[#faf6f3] rounded-xl overflow-hidden shadow-inner">
+                                    <img src="${card.image_url}" class="w-full h-full object-cover rounded-md">
+                                </div>
+                                <div class="w-full text-center text-[8px] font-black text-slate-300 tracking-wider truncate px-1 uppercase">${nameB} & ${nameA}</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function flipCard(cardElement) {
+            if (cardElement.classList.contains('card-flipped') || flippedCards.length >= 2) return;
+            cardElement.classList.add('card-flipped');
+            flippedCards.push(cardElement);
+
+            if (flippedCards.length === 2) {
+                const [card1, card2] = flippedCards;
+                const id1 = card1.getAttribute('data-id');
+                const id2 = card2.getAttribute('data-id');
+
+                if (id1 === id2) {
+                    matchedPairs++;
+                    document.getElementById('progressLabel').innerText = `${matchedPairs}/4`;
+
+                    setTimeout(() => {
+                        document.getElementById('modalMessage').innerText = card1.getAttribute('data-msg');
+                        document.getElementById('modalImage').src = card1.getAttribute('data-url');
+                        document.getElementById('modalCardLabel').innerText = `${nameB} ❤️ ${nameA}`;
+                        document.getElementById('messageModal').classList.remove('hidden');
+                    }, 500);
+
+                    flippedCards = [];
+
+                    // Khi lật đủ cả 4 cặp ảnh, kích hoạt mở Popup vinh danh hoành tráng thay thế hàm alert() cũ
+                    if (matchedPairs === 4) {
+                        setTimeout(() => {
+                            document.getElementById('victoryModal').classList.remove('hidden');
+                        }, 1200);
+                    }
+                } else {
+                    setTimeout(() => {
+                        card1.classList.remove('card-flipped');
+                        card2.classList.remove('card-flipped');
+                        flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('messageModal').classList.add('hidden');
+        }
+
+        function closeVictoryModal() {
+            document.getElementById('victoryModal').classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>
